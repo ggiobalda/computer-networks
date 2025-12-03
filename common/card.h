@@ -4,7 +4,6 @@
  * @brief Definitions for the Card structure and related functions
  * 
  */
-
 #ifndef CARD_H
 #define CARD_H
 
@@ -15,9 +14,9 @@
  *
  */
 typedef enum Column {
-    TODO = 0,
-    DOING = 1,
-    DONE = 2
+    TODO,
+    DOING,
+    DONE
 } Column;
 
 /**
@@ -29,7 +28,7 @@ typedef enum Column {
  * @param last_updated Timestamp of the last card's update
  * 
  */
-typedef struct Card{
+typedef struct Card {
     int id;
     char description[255];
     Column column;
@@ -57,7 +56,7 @@ Card* create_card(int id, const char* description, Column column);
 void free_card(Card* card);
 
 /**
- * @brief Print card details ina standard format
+ * @brief Print card details in a standard format
  * 
  * @param card Pointer to card
  * 

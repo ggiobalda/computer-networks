@@ -1,25 +1,25 @@
 Struttura progetto modulare:
 |
-|--- Makefile                   (File per la compilazione automatica)
-|--- README.md                  (Istruzioni per l'uso)
-|--- relazione.pdf              (Documentazione del progetto)
+|--- Makefile            
+|--- README.md           
+|--- relazione.pdf       
 |
-+--- board/                     (Codice sorgente Server - Lavagna)
-|    |--- lavagna.c             (Main del server: setup socket e select)
-|    |--- board-manager.h       (Gestione stato lavagna, colonne, card)
-|    |--- board-manager.c       (Implementazione logica MOVE, PING)
-|    |--- user-state.h          (Gestione lista utenti connessi al server)
++--- board/              
+|    |--- lavagna.c      
+|    |--- board-manager.h
+|    |--- board-manager.c
+|    |--- user-state.h   
 |    +--- user-state.c
 |
-+--- common/                    (Codice condiviso tra Client e Server)
-|    |--- protocol.h            (Definizione pacchetti e costanti)
-|    |--- protocol.c            (Funzioni di invio/ricezione socket)
-|    |--- card.h                (Definizione struct Card, enum KbCol)
-|    +--- card.c                (Funzioni create_card, free_card)
++--- common/             
+|    |--- protocol.h     
+|    |--- protocol.c     
+|    |--- card.h         
+|    +--- card.c         
 |
-+--- user/                      (Codice sorgente Client - Utente)
-     |--- utente.c              (Main del client: setup, select mista TCP/UDP)
-     |--- client-logic.h        (Gestione stati: NEGOZIAZIONE, LAVORO)
-     |--- client-logic.c        (Logica matricola pari/dispari)
-     |--- p2p-comms.h           (Funzioni specifiche per socket UDP)
-     +--- p2p-comms.c           (Broadcast costi, ricezione peer-to-peer)
++--- user/               
+     |--- utente.c       
+     |--- client-logic.h 
+     |--- client-logic.c 
+     |--- p2p-comms.h    
+     +--- p2p-comms.c    

@@ -1,13 +1,13 @@
 #include "card.h"
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 Card* create_card(int id, const char* description, Column column) {
     // allocate memory for card object and check for malloc errors
     Card* new_card = (Card*)malloc(sizeof(Card));
     if (new_card == NULL) {
-        perror("Malloc error in card_create: impossible to create a new card\n");
+        perror("Malloc error in create_card: impossible to create a new card\n");
         return NULL;
     }
 
