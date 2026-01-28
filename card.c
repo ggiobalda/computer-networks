@@ -1,6 +1,6 @@
 #include "card.h"
 
-Card* create_card(Column column, const char* description) {
+Card* create_card(int id, Column column, const char* description) {
     // allocazione memoria
     Card* new_card = (Card*)malloc(sizeof(Card));
     if (new_card == NULL) {
@@ -9,11 +9,13 @@ Card* create_card(Column column, const char* description) {
     }
 
     // inizializza campi e ritorna puntatore
-    new_card->id = next_id++;
+    new_card->id = id;
     new_card->column = column;
-    size_t size = (strlen(description) > MAX_CHARS) ? MAX_CHARS : strlen(description);
-    strncpy(new_card->description, description, size-1);
-    new_card->description[size] = '\0';
+    
+    new_card->description = (char*)malloc(MAX_CHARS+1);
+    strncpy(new_card->description, description, MAX_CHARS);
+    new_card->description[MAX_CHARS] = '\0';
+
     new_card->user_id = -1;
     new_card->last_updated = time(NULL);
     new_card->next = NULL;
@@ -44,6 +46,6 @@ void print_card(const Card* card) {
 
     printf("Card ID: %d\n", card->id);
     printf("Description: %s\n", card->description);
-    printf("Column: %s\n", card->column);
+    printf("Column: %s\n", ColumnNames[card->column]);
     printf("Last Updated: %s\n", ctime(&(card->last_updated)));
 }

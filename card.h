@@ -33,13 +33,14 @@ typedef struct Card {
 /**
  * @brief Costruttore card
  * 
+ * @param id ID della card
  * @param column Colonna in cui collocare la carta
  * @param description Puntatore al buffer contenente descrizione
  * 
  * @return Puntatore alla card creata, NULL su errore
  * 
  */
-Card* create_card(Column column, const char* description);
+Card* create_card(int id, Column column, const char* description);
 
 /**
  * @brief Distruttore card

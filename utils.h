@@ -27,7 +27,6 @@
 
 // card
 #define MAX_CHARS 30
-int next_id = 0;
 
 // colonne
 #define N_COLUMNS 3
@@ -42,6 +41,6 @@ typedef enum Column {
     DONE
 } Column;
 
-const char* ColumnNames[] = {"TO DO", "DOING", "DONE"};
+extern const char* ColumnNames[];
 
 #endif

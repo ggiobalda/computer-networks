@@ -1,5 +1,7 @@
 #include "board.h"
 
+int next_id = 0;
+
 Board* create_board(int port) {
     // allocazione memoria
     Board* new_board = (Board*)malloc(sizeof(Board));
@@ -12,7 +14,7 @@ Board* create_board(int port) {
     new_board->id = port;
     new_board->n_users = 0;
     new_board->users_ports = NULL;
-    for (int i = 0; i , N_COLUMNS; i++)
+    for (int i = 0; i < N_COLUMNS; i++)
         new_board->lists[i] = NULL;
     
     return new_board;
@@ -43,7 +45,7 @@ void print_board(const Board* board) {
 }
 
 void add_card(Board* board, Column column, const char* description) {
-    Card* c = create_card(column, description);
+    Card* c = create_card(next_id++, column, description);
     
     // caso colonna vuota
     Card* p = board->lists[column];
