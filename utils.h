@@ -41,6 +41,38 @@ typedef enum Column {
     DONE
 } Column;
 
+/**
+ * @brief Board to User messages
+ *
+ * @param BtU_AVAILABLE_CARD 
+ */
+typedef enum {
+    BtU_AVAILABLE_CARD,
+    BtU_PING
+} BtU_msg;
+
+/**
+ * @brief User to Board messages
+ *
+ */
+typedef enum {
+    UtB_HELLO,
+    UtB_QUIT,
+    UtB_SHOW_BOARD,
+    UtB_PONG
+    UtB_CREATE_CARD,
+    UtB_ACK_CARD,
+    UtB_CARD_DONE
+} UtB_msg;
+
+/**
+ * @brief User to User messages
+ *
+ */
+ typedef enum {
+    UtU_COST
+} UtB_msg;
+
 extern const char* ColumnNames[];
 
 #endif
