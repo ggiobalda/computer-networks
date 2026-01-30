@@ -44,8 +44,8 @@ int write_n_bytes(int socket, const void* buffer, int n) {
 
 int send_msg(int socket, MsgType type, const void* payload, int payload_len) {
     // controllo input
-    if (payload_len < 1 || payload == NULL) {
-        perror("payload non valido\n");
+    if (payload == NULL) {
+        perror("Argomenti non validi\n");
         return -1;
     }
 
@@ -61,9 +61,28 @@ int send_msg(int socket, MsgType type, const void* payload, int payload_len) {
     if ((res = write_n_bytes(socket, payload, payload_len)) < 1)
         return res;
     
-    return 1;
+    return 1; 
 }
 
 int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len) {
-
+    // controllo input
+    if (head == NULL || payload == NULL) {
+        perror("Argomenti non validi\n");
+        return -1;
+    }
+    
+    // ricezione header
+    int ret;
+    if ((ret = read_n_bytes(socket, head, sizeof(MsgHeader))) < 1)
+        return ret;
+    
+    // ricezione payload
+    if (max_payload_len < head->payload_len) {
+        perror("Dimensione buffer insufficiente\n");
+        return -1;
+    }
+    if ((ret = read_n_bytes(socket, payload, head->payload_len)) < 1)
+        return ret;
+    
+    return 1;
 }

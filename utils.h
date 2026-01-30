@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <time.h>
 
@@ -24,12 +25,15 @@
 
 // utenti
 #define MIN_PORT 5679
+#define MAX_USERS 20
 
 // card
 #define MAX_CHARS 30
 
 // colonne
 #define N_COLUMNS 3
+
+#define MAX_PAYLOAD 1024
 
 /**
  * @brief Colonne nella lavagna
