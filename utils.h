@@ -1,11 +1,11 @@
 /**
- * @file consts.h
+ * @file utils.h
  * @author Giorgio Baldacci (g.baldacci9@studenti.unipi.it)
  * @brief Costanti utili per il progetto
  * 
  */
-#ifndef CONSTS_H
-#define CONSTS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,38 +41,60 @@ typedef enum Column {
     DONE
 } Column;
 
+extern const char* ColumnNames[];
+
 /**
- * @brief Board to User messages
- *
- * @param BtU_AVAILABLE_CARD 
+ * @brief Tipo di messaggio inviato
+ * 
+ * Suddivisi per ruoli di sender/receiver (Board to User, User to Board, User to User)
+ * 
  */
 typedef enum {
     BtU_AVAILABLE_CARD,
-    BtU_PING
-} BtU_msg;
+    BtU_PING,
 
-/**
- * @brief User to Board messages
- *
- */
-typedef enum {
     UtB_HELLO,
     UtB_QUIT,
     UtB_SHOW_BOARD,
-    UtB_PONG
+    UtB_PONG,
     UtB_CREATE_CARD,
     UtB_ACK_CARD,
-    UtB_CARD_DONE
-} UtB_msg;
+    UtB_CARD_DONE,
+    
+    UtU_COST
+} MsgType;
 
 /**
- * @brief User to User messages
- *
+ * @brief Header contenente tipo e dimensione del messaggio
+ * 
  */
- typedef enum {
-    UtU_COST
-} UtB_msg;
+typedef struct {
+    MsgType type;
+    int payload_len;
+} MsgHeader;
 
-extern const char* ColumnNames[];
+/**
+ * @brief Invia un messaggio tramite socket
+ * 
+ * @param socket Valore del socket su cui inviare messaggio
+ * @param type Tipo di messaggio
+ * @param payload Puntatore a dove leggere corpo del messaggio
+ * @param payload_len Dimensione del corpo del messaggio
+ 
+ * @return 1 se ha successo, error value altrimenti
+ */
+int send_msg(int socket, MsgType type, const void* payload, int payload_len);
+
+/**
+ * @brief Riceve un messaggio tramite socket
+ * 
+ * @param socket Valore del socket su cui ricevere messaggio
+ * @param head Puntatore a struct MsgHead dove scrivere info sul messaggio
+ * @param payload Puntatore a buffer dove scrivere corpo del messaggio
+ * @param max_payload_len Dimensione massima del payload
+ *
+ * @return 1 se ha successo, error value altrimenti
+ */
+int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len);
 
 #endif

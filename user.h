@@ -48,11 +48,11 @@ void free_user(User* user);
 /**
  * @brief 
  * 
- * @param users lista degli utenti della lavagna
- * @param usr id del nuovo utente
- * @param descp descrittore del socket dell'utente
+ * @param users Lista degli utenti della lavagna
+ * @param usr ID del nuovo utente
+ * @param descp Descrittore del socket dell'utente
  * 
- * @return ritorna 0 se ha successo, -1 altrimenti
+ * @return Ritorna 0 se ha successo, -1 altrimenti
  */
 //int insert_User_in_list(User** users, int usr, int descp);
 
@@ -61,9 +61,9 @@ void free_user(User* user);
  * 
  * La funzione scorre la lista per cercare l'utente usr, se lo trova lo elimina
  * 
- * @param usr id dell'utente da estrarre
+ * @param usr ID dell'utente da estrarre
  * 
- * @return la funzione ritorna 0 se l'utente è stato trovato, -1 altrimenti
+ * @return La funzione ritorna 0 se l'utente è stato trovato, -1 altrimenti
  */
 //int extract_User(User** user_list, int usr);
 
