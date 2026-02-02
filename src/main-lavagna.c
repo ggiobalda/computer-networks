@@ -82,19 +82,39 @@ int main() {
 					
 					if ((ret = recv_msg(i, &head, buffer, sizeof(MsgHeader)+1)) < 0) {
 						if (ret == 0) {
-							printf("Socket %d disconnesso\n");
+							printf("[SERVER] Socket %d disconnesso\n");
 							// FARE: gestione disconnessione
 							continue;
 						}
 						else {
-							printf("Errore ricezione messaggio\n");
+							printf("[SERVER] Errore ricezione messaggio\n");
 							// FARE: gestione errore
 							continue;
 						}
 					}
 
 					switch(head.type) {
-						
+						case UtB_HELLO:
+                            printf("[SERVER] Ricevuto HELLO da socket %d\n", i);
+                            // TODO: Implementare registrazione utente
+                            // 1. Aggiungere a user_list
+                            // 2. Aggiornare contatore kanban->n_users
+                            break;
+
+                        case UtB_QUIT:
+                                printf("[MSG] Ricevuto QUIT da socket %d\n", i);
+                                close(i);
+                                FD_CLR(i, &master_fds);
+                                // TODO: Rimuovere utente e gestire logica uscita
+                                break;
+                                
+                        case UtB_ACK_CARD:
+                                printf("[MSG] Ricevuto ACK_CARD\n");
+                                // TODO: Gestione assegnamento card
+                                break;
+
+                        default:
+                                printf("[MSG] Messaggio tipo %d non gestito\n", head.type);
 					}
 				}
 			}
