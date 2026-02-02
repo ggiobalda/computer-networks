@@ -1,4 +1,4 @@
-#include "card.h"
+#include "../../include/classes/card.h"
 
 Card* create_card(int id, Column column, const char* description) {
     // allocazione memoria

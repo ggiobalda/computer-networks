@@ -7,21 +7,22 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "utils.h"
-#include "card.h"
+#include "../network/utils.h"
+#include "./card.h"
+#include "./user.h"
 
 /**
  * @brief Lavagna del kanban
  * 
  * @param id Numero di portqa
  * @param n_users Numero di utenti attualmente connessi
- * @param users_ports Array contenente porte degli utenti
+ * @param users Lista degli utenti connessi
  * @param lists Array di liste di carte, una per colonna
  */
 typedef struct Board {
     int id;
     int n_users;
-    int* users_ports;
+    User* users;
     Card* lists[N_COLUMNS];
 } Board;
 
@@ -52,7 +53,7 @@ void free_board(Board* board);
 void print_board(const Board* board);
 
 /**
- * @brief Crea nuova card e la aggiunge in fondo alla colonna indicata
+ * @brief Crea nuova card e aggiunge in fondo alla colonna indicata
  * 
  * @param board Puntatore alla lavagna
  * @param column Colonna in cui inserire la card
@@ -60,5 +61,28 @@ void print_board(const Board* board);
  * 
  */
 void add_card(Board* board, Column column, const char* description);
+
+/**
+ * @brief Crea nuovo utente e aggiunge in fondo alla lista
+ * 
+ * Aggiorna il contatore di utenti connessi
+ * 
+ * @param board Puntatore alla lavagna
+ * @param port ID del nuovo utente
+ * @param socket Descrittore del socket dell'utente
+ * 
+ */
+void add_user(Board* board, int port, int socket);
+
+/**
+ * @brief Cerca ed elimina utente dalla lista
+ * 
+ * Aggiorna il contatore di utenti connessi
+ * 
+ * @param board Puntatore alla lavagna
+ * @param port ID dell'utente
+ * 
+ */
+void remove_user(Board* board, int port);
 
 #endif

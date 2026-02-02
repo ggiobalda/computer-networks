@@ -7,7 +7,7 @@
 #ifndef CARD_H
 #define CARD_H
 
-#include "utils.h"
+#include "../network/utils.h"
 
 /**
  * @brief Task nel kanban

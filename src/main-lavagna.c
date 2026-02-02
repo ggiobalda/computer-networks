@@ -1,5 +1,6 @@
-#include "board.h"
-#include "user.h"
+#include "../include/classes/board.h"
+#include "../include/classes/card.h"
+#include "../include/classes/user.h"
 
 int main() {
 	/* 1) INIZIALIZZAZIONE KANBAN E STAMPA COME DA SPECIFICHE */
@@ -96,25 +97,18 @@ int main() {
 					switch(head.type) {
 						case UtB_HELLO:
                             printf("[SERVER] Ricevuto HELLO da socket %d\n", i);
-                            // TODO: Implementare registrazione utente
-                            // 1. Aggiungere a user_list
-                            // 2. Aggiornare contatore kanban->n_users
+                            //add_user(kanban, port, newfd);
                             break;
 
                         case UtB_QUIT:
-                                printf("[MSG] Ricevuto QUIT da socket %d\n", i);
+                                printf("[SERVER] Ricevuto QUIT da socket %d\n", i);
                                 close(i);
                                 FD_CLR(i, &master_fds);
-                                // TODO: Rimuovere utente e gestire logica uscita
-                                break;
-                                
-                        case UtB_ACK_CARD:
-                                printf("[MSG] Ricevuto ACK_CARD\n");
-                                // TODO: Gestione assegnamento card
+								//remove_user(kanban, port);
                                 break;
 
                         default:
-                                printf("[MSG] Messaggio tipo %d non gestito\n", head.type);
+                                printf("[SERVER] Messaggio tipo %d non gestito\n", head.type);
 					}
 				}
 			}

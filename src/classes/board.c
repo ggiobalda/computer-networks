@@ -1,4 +1,4 @@
-#include "board.h"
+#include "../../include/classes/board.h"
 
 int next_id = 0;
 
@@ -13,7 +13,7 @@ Board* create_board(int port) {
     // inizializza campi e ritorna puntatore
     new_board->id = port;
     new_board->n_users = 0;
-    new_board->users_ports = NULL;
+    new_board->users = NULL;
     for (int i = 0; i < N_COLUMNS; i++)
         new_board->lists[i] = NULL;
     
@@ -21,6 +21,26 @@ Board* create_board(int port) {
 }
 
 void free_board(Board* board) {
+    // deallocazione lista utenti
+    User* u = board->users;
+    User* v;
+    while (u != NULL) {
+        v = u->next;
+        free_user(u);
+        u = v;
+    }
+
+    // deallocazione liste card
+    for (int i = 0; i < 3; i++) {
+        Card* p = board->lists[i];
+        Card* q;
+        while (p != NULL) {
+            q = p->next;
+            free_card(p);
+            q = p;
+        }
+    }
+
     if (board != NULL) {
         free(board);
     }
@@ -41,22 +61,71 @@ void print_board(const Board* board) {
         }
         printf("Colonna %s terminata", ColumnNames[i]);
     }
-
 }
 
 void add_card(Board* board, Column column, const char* description) {
     Card* c = create_card(next_id++, column, description);
+    Card* p = board->lists[column];
     
     // caso colonna vuota
-    Card* p = board->lists[column];
     if (p == NULL) {
         board->lists[column] = c;
         return;
     }
 
+    // caso normale
     while (p->next != NULL)
         p = p->next;
     
     p->next = c;
+}
 
+
+void add_user(Board* board, int port, int socket) {
+    User* u = create_user(port, socket);
+    User* p = board->users;
+
+    // caso lista vuota
+    if (p == NULL) {
+        board->users = u;
+        return;
+    }
+
+    // caso normale
+    while (p->next != NULL)
+        p = p->next;
+
+    p->next = u;
+    board->n_users++;
+}
+
+void remove_user(Board* board, int port) {
+    User* p = board->users;
+    
+    // caso utente in testa
+    if (p->id == port) {
+        board->users = p->next;
+        free_user(p);
+        
+        board->n_users--;
+        return;
+    }
+    
+    User* q = p->next;
+    while (q != NULL && q->id != port) {
+        p = q;
+        q = q->next;
+    }
+
+    // caso utente non presente
+    if (q == NULL) {
+        printf("[SERVER] Utente non presente in lista\n");
+        return;
+    }
+
+    // caso normale
+    p->next = q->next;
+    free_user(q);
+
+    board->n_users--;
 }

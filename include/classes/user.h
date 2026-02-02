@@ -7,7 +7,7 @@
 #ifndef USER_H
 #define USER_H
 
-#include "utils.h"
+#include "../network/utils.h"
 
 /**
  * @brief Utente nel kanban
@@ -44,17 +44,6 @@ User* create_user(int port, int socket);
  * 
  */
 void free_user(User* user);
-
-/**
- * @brief 
- * 
- * @param users Lista degli utenti della lavagna
- * @param usr ID del nuovo utente
- * @param descp Descrittore del socket dell'utente
- * 
- * @return Ritorna 0 se ha successo, -1 altrimenti
- */
-//int insert_User_in_list(User** users, int usr, int descp);
 
 /**
  * @brief La funzione estrae un'utente dalla lista

@@ -1,5 +1,4 @@
-#include "user.h"
-
+#include "../../include/classes/user.h"
 
 User* create_user(int port, int socket){
     // allocazione memoria
