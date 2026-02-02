@@ -78,6 +78,15 @@ typedef struct {
 } MsgHeader;
 
 /**
+ * @brief Payload per il messaggio UtB_HELLO
+ * 
+ * @param port Porta usata dall'utente per comunicare con kanban
+ */
+ typedef struct {
+    int port;
+ } MsgHelloPayload;
+
+/**
  * @brief Invia un messaggio tramite socket
  * 
  * @param socket Valore del socket su cui inviare messaggio

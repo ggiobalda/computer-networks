@@ -44,7 +44,7 @@ int write_n_bytes(int socket, const void* buffer, int n) {
 
 int send_msg(int socket, MsgType type, const void* payload, int payload_len) {
     // controllo input
-    if (payload == NULL) {
+    if (payload_len > 0 && payload == NULL) {
         perror("Argomenti non validi\n");
         return -1;
     }
@@ -58,7 +58,7 @@ int send_msg(int socket, MsgType type, const void* payload, int payload_len) {
         return res;
 
     // invio payload
-    if ((res = write_n_bytes(socket, payload, payload_len)) < 1)
+    if (payload_len > 0 && ((res = write_n_bytes(socket, payload, payload_len)) < 1))
         return res;
     
     return 1; 

@@ -1,9 +1,11 @@
+#include "../include/network/utils.h"
 #include "../include/classes/board.h"
 #include "../include/classes/card.h"
 #include "../include/classes/user.h"
+#include "../include/handlers/server_handlers.h"
 
 int main() {
-	/* 1) INIZIALIZZAZIONE KANBAN E STAMPA COME DA SPECIFICHE */
+	/* 1) INIZIALIZZAZIONE KANBAN E STAMPA */
 	Board* kanban = create_board(BOARD_PORT);
 
 	// creazione di qualche card iniziale
@@ -81,31 +83,26 @@ int main() {
 					char buffer[MAX_PAYLOAD];
 					int ret;
 					
-					if ((ret = recv_msg(i, &head, buffer, sizeof(MsgHeader)+1)) < 0) {
+					if ((ret = recv_msg(i, &head, buffer, sizeof(buffer))) < 0) {
 						if (ret == 0) {
 							printf("[SERVER] Socket %d disconnesso\n");
-							// FARE: gestione disconnessione
+							remove_user(kanban, i);
 							continue;
 						}
 						else {
 							printf("[SERVER] Errore ricezione messaggio\n");
-							// FARE: gestione errore
 							continue;
 						}
 					}
 
 					switch(head.type) {
 						case UtB_HELLO:
-                            printf("[SERVER] Ricevuto HELLO da socket %d\n", i);
-                            //add_user(kanban, port, newfd);
+                            server_hello_handler(kanban, i, buffer);
                             break;
 
                         case UtB_QUIT:
-                                printf("[SERVER] Ricevuto QUIT da socket %d\n", i);
-                                close(i);
-                                FD_CLR(i, &master_fds);
-								//remove_user(kanban, port);
-                                break;
+							server_quit_handler(kanban, i, &master_fds);
+                            break;
 
                         default:
                                 printf("[SERVER] Messaggio tipo %d non gestito\n", head.type);

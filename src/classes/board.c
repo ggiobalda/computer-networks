@@ -99,11 +99,11 @@ void add_user(Board* board, int port, int socket) {
     board->n_users++;
 }
 
-void remove_user(Board* board, int port) {
+void remove_user(Board* board, int socket) {
     User* p = board->users;
     
     // caso utente in testa
-    if (p->id == port) {
+    if (p->socket == socket) {
         board->users = p->next;
         free_user(p);
         
@@ -112,7 +112,7 @@ void remove_user(Board* board, int port) {
     }
     
     User* q = p->next;
-    while (q != NULL && q->id != port) {
+    while (q != NULL && q->socket != socket) {
         p = q;
         q = q->next;
     }
@@ -126,6 +126,5 @@ void remove_user(Board* board, int port) {
     // caso normale
     p->next = q->next;
     free_user(q);
-
     board->n_users--;
 }

@@ -80,9 +80,9 @@ void add_user(Board* board, int port, int socket);
  * Aggiorna il contatore di utenti connessi
  * 
  * @param board Puntatore alla lavagna
- * @param port ID dell'utente
+ * @param socket Descrittore del socket dell'utente
  * 
  */
-void remove_user(Board* board, int port);
+void remove_user(Board* board, int socket);
 
 #endif
