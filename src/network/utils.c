@@ -75,14 +75,16 @@ int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len) {
     int ret;
     if ((ret = read_n_bytes(socket, head, sizeof(MsgHeader))) < 1)
         return ret;
-    
-    // ricezione payload
-    if (max_payload_len < head->payload_len) {
-        perror("Dimensione buffer insufficiente\n");
-        return -1;
+
+    // ricezione payload (se presente)
+    if (head->payload_len > 0) {   
+        if (max_payload_len < head->payload_len) {
+            perror("Dimensione buffer insufficiente\n");
+            return -1;
+        }
+        if ((ret = read_n_bytes(socket, payload, head->payload_len)) < 1)
+            return ret;
     }
-    if ((ret = read_n_bytes(socket, payload, head->payload_len)) < 1)
-        return ret;
-    
+        
     return 1;
 }
