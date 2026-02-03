@@ -45,12 +45,14 @@ Board* create_board(int port);
 void free_board(Board* board);
 
 /**
- * @brief Stampa lavagna intera
+ * @brief Formatta lavagna come stringa su buffer per poter essere stampata
  * 
  * @param board Puntatore alla lavagna
+ * @param buffer Puntatore al buffer
+ * @param max_len Dimensione massima stringa
  * 
  */
-void print_board(const Board* board);
+void board_to_string(const Board* board, char* buffer, int max_len);
 
 /**
  * @brief Crea nuova card e aggiunge in fondo alla colonna indicata
@@ -61,6 +63,16 @@ void print_board(const Board* board);
  * 
  */
 void add_card(Board* board, Column column, const char* description);
+
+/**
+ * @brief Rimuovi la card in testa alla lista
+ * 
+ * @param board Puntatore alla lavagna
+ * @param column Colonna da cui estrarre
+ 
+ * @return Puntatore alla card estratta, NULL se lista vuota
+ */
+Card* extract_card_list(Board* board, Column column);
 
 /**
  * @brief Crea nuovo utente e aggiunge in fondo alla lista

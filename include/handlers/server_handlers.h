@@ -28,5 +28,20 @@ void server_hello_handler(Board* board, int socket, void* payload);
  */
 void server_quit_handler(Board* board, int socket, fd_set* master_fds);
 
+/**
+ * @brief Avvia asta per prima card in todo
+ * 
+ * @param board Puntatore alla lavagna
+ */
+void server_available_card_handler(Board* board);
+
+/**
+ * @brief Gestisce richiesta di SHOW LAVAGNA di un utente
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore del socket dell'utente
+ * 
+ */
+void server_show_lavagna_handler(Board* board, int socket);
 
 #endif

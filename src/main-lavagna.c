@@ -16,7 +16,9 @@ int main() {
 	}
 
 	printf("[SERVER] Lavagna inizializzata\n");
-	print_board(kanban);
+	char printbuf[MAX_PAYLOAD];
+	board_to_string(kanban, printbuf, sizeof(printbuf));
+	printf("%s", printbuf);
 
 	/* 2) SETUP DEL SERVER */
 	// socket per l'ascolto
@@ -29,7 +31,7 @@ int main() {
 	// indirizzo server
 	struct sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = BOARD_ADDRESS;
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(BOARD_PORT);
 
 	// configurazione socket per l'ascolto 
@@ -68,7 +70,7 @@ int main() {
 					struct sockaddr_in client_addr;
 					socklen_t addr_len = sizeof(client_addr);
 
-					if (newfd = accept(server_sock, (struct sockaddr*)&server_addr, &addr_len) < 0) {
+					if ((newfd = accept(server_sock, (struct sockaddr*)&server_addr, &addr_len)) < 0) {
 						perror("[SERVER] Errore accept\n");
 						continue;
 					}
@@ -81,29 +83,52 @@ int main() {
 				else { // caso B: client già connesso
 					MsgHeader head;
 					char buffer[MAX_PAYLOAD];
-					int ret;
-					
-					if ((ret = recv_msg(i, &head, buffer, sizeof(buffer))) < 0) {
-						if (ret == 0) {
-							printf("[SERVER] Socket %d disconnesso\n");
-							remove_user(kanban, i);
-							continue;
-						}
-						else {
-							printf("[SERVER] Errore ricezione messaggio\n");
-							continue;
-						}
+					int ret = recv_msg(i, &head, buffer, sizeof(buffer));
+
+					if (ret == 0) {
+						server_quit_handler(kanban, i, &master_fds);
+						continue;
+					}
+					else if (ret < 0){
+						printf("[SERVER] Errore ricezione messaggio\n");
+						continue;
 					}
 
 					switch(head.type) {
 						case UtB_HELLO:
                             server_hello_handler(kanban, i, buffer);
+							if (kanban->n_users > 1)
+								server_available_card_handler(kanban);
                             break;
 
                         case UtB_QUIT:
 							server_quit_handler(kanban, i, &master_fds);
                             break;
+						
+						case UtB_SHOW_LAVAGNA:
+							server_show_lavagna_handler(kanban, i);
+							break;
+						/*
+						case UtB_SEND_USER_LIST:
+							server_send_user_list_handler(...);
+							break;
 
+						case UtB_PONG:
+							server_pong_handler(kanban, i);
+							break;
+						
+						case UtB_CREATE_CARD:
+							server_create_card_handler(kanban, i, buffer);
+							break;
+						
+						case UtB_ACK_CARD:
+							server_ACK_CARD_handler(kanban, i);
+							break;
+						
+						case UtB_CARD_DONE:
+							server_CARD_DONE_handler(kanban, i);
+							break;
+						*/
                         default:
                                 printf("[SERVER] Messaggio tipo %d non gestito\n", head.type);
 					}

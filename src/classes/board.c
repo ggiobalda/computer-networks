@@ -46,21 +46,33 @@ void free_board(Board* board) {
     }
 }
 
-void print_board(const Board* board) {
-    if (board == NULL){
-        perror("Board NULL\n");
-        return;
-    }
+void board_to_string(const Board* board, char* buffer, int max_len) {
+    int offset = 0; // contatore posizione nel buffer
+
+    offset += snprintf(buffer + offset, max_len - offset, "=== STATO LAVAGNA ===\n");
 
     for (int i = TODO; i <= DONE; i++) {
-        printf("%s\n", ColumnNames[i]);
-
-        for (Card* p = board->lists[i]; p != NULL; p = p->next) {
-            printf("\n");
-            print_card(p);
+        offset += snprintf(buffer + offset, max_len - offset, "\n--- %s ---\n", ColumnNames[i]);
+        
+        Card* p = board->lists[i];
+        if (p == NULL) {
+             offset += snprintf(buffer + offset, max_len - offset, "(Vuota)\n");
+             continue;
         }
-        printf("Colonna %s terminata", ColumnNames[i]);
+        
+        while (p != NULL) {
+            // formattazione singola card
+            offset += snprintf(buffer + offset, max_len - offset, 
+                                   "[ID: %d] %s (User port: %d)\n", 
+                                   p->id, p->description, p->user_id);
+            p = p->next;
+                
+            if (offset >= max_len - 1) // controllo overflow
+                return;
+        }
     }
+
+    offset += snprintf(buffer + offset, max_len - offset, "\n=====================\n");
 }
 
 void add_card(Board* board, Column column, const char* description) {
@@ -127,4 +139,15 @@ void remove_user(Board* board, int socket) {
     p->next = q->next;
     free_user(q);
     board->n_users--;
+}
+
+Card* extract_card_list(Board* board, Column column) {
+    Card* p = board->lists[column];
+
+    // caso lista vuota
+    if (p == NULL)
+        return NULL;
+    
+    board->lists[column] = p->next;
+    return p;
 }

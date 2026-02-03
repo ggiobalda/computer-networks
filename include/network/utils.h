@@ -56,10 +56,13 @@ extern const char* ColumnNames[];
 typedef enum {
     BtU_AVAILABLE_CARD,
     BtU_PING,
+    BtU_SHOW_LAVAGNA,
+    BtU_SEND_USER_LIST,
 
     UtB_HELLO,
     UtB_QUIT,
-    UtB_SHOW_BOARD,
+    UtB_SHOW_LAVAGNA,
+    UtB_SEND_USER_LIST,
     UtB_PONG,
     UtB_CREATE_CARD,
     UtB_ACK_CARD,
@@ -82,9 +85,39 @@ typedef struct {
  * 
  * @param port Porta usata dall'utente per comunicare con kanban
  */
- typedef struct {
+typedef struct {
     int port;
- } MsgHelloPayload;
+} MsgHelloPayload;
+
+/**
+ * @brief Payload inviato dalla lavagna a tutti gli utenti per avviare l'asta
+ * 
+ * @param card_id ID della card oggetto dell'asta 
+ * @param description Descrizione della card
+ * @param n_users Numero di utenti partecipanti all'asta
+ * @param users_ports Array di porte dei partecipanti
+ * 
+ */
+typedef struct {
+    int card_id;
+    char description[MAX_CHARS];
+    int n_users;
+    int users_ports[MAX_USERS];
+} MsgAvailableCardPayload;
+
+/**
+ * @brief Payload inviato da ogni utente nell'asta a tutti gli altri
+ * 
+ * @param card_id ID della card oggetto dell'asta 
+ * @param cost Costo associato alla card per il sender
+ * @param sender_port Porta associata all'utente sender
+ * 
+ */
+typedef struct {
+    int card_id;
+    int cost;
+    int sender_port;
+} MsgChooseUserPayload;
 
 /**
  * @brief Invia un messaggio tramite socket
