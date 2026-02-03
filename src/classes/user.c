@@ -21,3 +21,19 @@ void free_user(User* user) {
     if (user != NULL)
         free(user);
 }
+
+User* find_user_by_port(User* user_list, int port) {
+    User* u = user_list;
+    while (u != NULL && u->id != port)
+        u = u->next;
+
+    return u;
+}
+
+User* find_user_by_socket(User* user_list, int socket) {
+    User* u = user_list;
+    while (u != NULL && u->socket != socket)
+        u = u->next;
+
+    return u;
+}

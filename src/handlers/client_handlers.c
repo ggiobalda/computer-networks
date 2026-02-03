@@ -41,7 +41,7 @@ int user_input_handler(int server_socket) {
 
 int server_msg_handler(int server_socket) {
     MsgHeader head;
-    char buffer[MAX_PAYLOAD];
+    char buffer[MAX_PAYLOAD_SIZE];
     int ret = recv_msg(server_socket, &head, buffer, sizeof(buffer));
 	
     if (ret <= 0) {

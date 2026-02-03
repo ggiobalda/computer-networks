@@ -10,13 +10,13 @@ int main() {
 
 	// creazione di qualche card iniziale
 	for (int i = 0; i < 5; i++) {
-		char desc[MAX_CHARS];
+		char desc[MAX_CARD_DESC_CHARS];
 		sprintf(desc, "Card%d", i);
 		add_card(kanban, TODO, desc);
 	}
 
 	printf("[SERVER] Lavagna inizializzata\n");
-	char printbuf[MAX_PAYLOAD];
+	char printbuf[MAX_PAYLOAD_SIZE];
 	board_to_string(kanban, printbuf, sizeof(printbuf));
 	printf("%s", printbuf);
 
@@ -82,7 +82,7 @@ int main() {
 				}
 				else { // caso B: client già connesso
 					MsgHeader head;
-					char buffer[MAX_PAYLOAD];
+					char buffer[MAX_PAYLOAD_SIZE];
 					int ret = recv_msg(i, &head, buffer, sizeof(buffer));
 
 					if (ret == 0) {

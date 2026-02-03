@@ -151,3 +151,40 @@ Card* extract_card_list(Board* board, Column column) {
     board->lists[column] = p->next;
     return p;
 }
+
+// Funzione helper per spostare una card tra colonne
+void board_move_card(Board* board, int card_id, Column from, Column to, int user_id) {
+    Card* p = NULL;
+    Card* card = board->lists[from];
+
+    while (card != NULL && card->id != card_id) {
+        p = card;
+        card = card->next;
+    }
+
+    // card non presente
+    if (card == NULL) {
+        printf("[SERVER] Card non presente in lista\n");
+        return;
+    }
+
+    // rimozione card da lista from
+    if (p == NULL) 
+        board->lists[from] = card->next;
+    else 
+        p->next = card->next;
+
+    // aggiorna dati card
+    card->column = to;
+    card->user_id = user_id;
+    card->last_updated = time(NULL); // resete timer per ping
+    card->next = NULL;
+
+    // aggiunta alla lista to
+    Card* dest = board->lists[to];
+    if (dest == NULL)
+        board->lists[to] = card;
+    else 
+        while (dest->next != NULL) dest = dest->next;
+        dest->next = card;
+}

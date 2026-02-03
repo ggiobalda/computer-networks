@@ -53,4 +53,20 @@ void server_show_lavagna_handler(Board* board, int socket);
  */
 void server_send_user_list_handler(Board* board, int socket);
 
+/**
+ * @brief Gestisce risposta PONG di un utente
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore socket dell'utente
+ */
+void server_pong_handler(Board* board, int socket);
+
+/**
+ * @brief Controlla timestamp card in DOING 
+ * 
+ * @param board Puntatore alla lavagna
+ * 
+ */
+void server_check_timeouts(Board* board);
+
 #endif

@@ -19,21 +19,16 @@
 #include <netinet/in.h>
 #include <time.h>
 
-// lavagna
+// costanti
 #define BOARD_PORT 5678
 #define BOARD_ADDRESS "127.0.0.1"
-
-// utenti
 #define MIN_PORT 5679
 #define MAX_USERS 20
-
-// card
-#define MAX_CHARS 30
-
-// colonne
+#define MAX_CARD_DESC_CHARS 30
 #define N_COLUMNS 3
-
-#define MAX_PAYLOAD 1024
+#define MAX_PAYLOAD_SIZE 1024
+#define PING_INTERVAL 90
+#define PONG_INTERVAL 30
 
 /**
  * @brief Colonne nella lavagna
@@ -100,7 +95,7 @@ typedef struct {
  */
 typedef struct {
     int card_id;
-    char description[MAX_CHARS];
+    char description[MAX_CARD_DESC_CHARS];
     int n_users;
     int users_ports[MAX_USERS];
 } MsgAvailableCardPayload;
@@ -112,7 +107,7 @@ typedef struct {
  * 
  */
 typedef struct {
-    char string[MAX_PAYLOAD];
+    char string[MAX_PAYLOAD_SIZE];
 } MsgShowLavagnaPayload;
 
 /**
@@ -159,10 +154,10 @@ int send_msg(int socket, MsgType type, const void* payload, int payload_len);
  * @param socket Valore del socket su cui ricevere messaggio
  * @param head Puntatore a struct MsgHead dove scrivere info sul messaggio
  * @param payload Puntatore a buffer dove scrivere corpo del messaggio
- * @param max_payload_len Dimensione massima del payload
+ * @param MAX_PAYLOAD_SIZE_len Dimensione massima del payload
  *
  * @return 1 se ha successo, error value altrimenti
  */
-int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len);
+int recv_msg(int socket, MsgHeader* head, void* payload, int MAX_PAYLOAD_SIZE_len);
 
 #endif

@@ -97,4 +97,16 @@ void add_user(Board* board, int port, int socket);
  */
 void remove_user(Board* board, int socket);
 
+/**
+ * @brief Sposta card fra colonne
+ * 
+ * @param board Puntatore alla lavagna
+ * @param card_id ID della card
+ * @param from Colonna di origine
+ * @param to Colonna di destinazione
+ * @param user_id Utente associato alla card
+ * 
+ */
+void board_move_card(Board* board, int card_id, Column from, Column to, int user_id);
+
 #endif

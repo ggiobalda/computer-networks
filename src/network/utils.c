@@ -64,7 +64,7 @@ int send_msg(int socket, MsgType type, const void* payload, int payload_len) {
     return 1; 
 }
 
-int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len) {
+int recv_msg(int socket, MsgHeader* head, void* payload, int MAX_PAYLOAD_SIZE_len) {
     // controllo input
     if (head == NULL || payload == NULL) {
         perror("Argomenti non validi\n");
@@ -78,7 +78,7 @@ int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len) {
 
     // ricezione payload (se presente)
     if (head->payload_len > 0) {   
-        if (max_payload_len < head->payload_len) {
+        if (MAX_PAYLOAD_SIZE_len < head->payload_len) {
             perror("Dimensione buffer insufficiente\n");
             return -1;
         }

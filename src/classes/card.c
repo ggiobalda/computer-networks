@@ -12,9 +12,9 @@ Card* create_card(int id, Column column, const char* description) {
     new_card->id = id;
     new_card->column = column;
     
-    new_card->description = (char*)malloc(MAX_CHARS+1);
-    strncpy(new_card->description, description, MAX_CHARS);
-    new_card->description[MAX_CHARS] = '\0';
+    new_card->description = (char*)malloc(MAX_CARD_DESC_CHARS+1);
+    strncpy(new_card->description, description, MAX_CARD_DESC_CHARS);
+    new_card->description[MAX_CARD_DESC_CHARS] = '\0';
 
     new_card->user_id = -1;
     new_card->last_updated = time(NULL);
