@@ -39,7 +39,7 @@ int user_input_handler(int server_socket) {
     return 1;
 }
 
-int handle_server_message(int server_socket) {
+int server_msg_handler(int server_socket) {
     MsgHeader head;
     char buffer[MAX_PAYLOAD];
     int ret = recv_msg(server_socket, &head, buffer, sizeof(buffer));
@@ -59,11 +59,11 @@ int handle_server_message(int server_socket) {
             break;
         
         case BtU_SHOW_LAVAGNA:
-            //handler
+            response_show_lavagna_handler(&head, buffer);
             break;
         
         case BtU_SEND_USER_LIST:
-            //handler
+            response_send_user_list_handler(&head, buffer);
             break;
         
         default:
@@ -111,4 +111,27 @@ void command_send_user_list_handler(int server_socket) {
 
     if (send_msg(server_socket, UtB_SEND_USER_LIST, NULL, 0) < 0)
         perror("[CLIENT] Errore nell'invio di SEND USER LIST\n");
+}
+
+void response_show_lavagna_handler(MsgHeader* head, char* payload) {
+    MsgShowLavagnaPayload* response_payload = (MsgShowLavagnaPayload*)payload;
+    
+    response_payload->string[head->payload_len - 1] = '\0';
+    printf("%s\n", response_payload->string);
+}
+
+void response_send_user_list_handler(MsgHeader* head, char* payload) {
+    MsgUserListPayload* response_payload = (MsgUserListPayload*)payload;
+    
+    printf("\n--- LISTA UTENTI CONNESSI (%d) ---\n", response_payload->n_users);
+    
+    if (response_payload->n_users == 1) {
+        printf("Nessun altro utente connesso.\n");
+    }
+    else {
+        for (int i = 0; i < response_payload->n_users; i++) {
+            printf("- Utente porta: %d\n", response_payload->users_ports[i]);
+        }
+    }
+    printf("----------------------------------\n");
 }

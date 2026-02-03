@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 
         // B) MESSAGGI DAL SERVER
         if (FD_ISSET(server_sock, &read_fds)) {
-            //if (server_msg_handler(server_sock) < 0)
+            if (server_msg_handler(server_sock) <= 0)
 				break;
         }
 

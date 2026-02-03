@@ -54,4 +54,22 @@ void command_show_lavagna_handler(int server_socket);
  */
 void command_send_user_list_handler(int server_socket);
 
+/**
+ * @brief Gestisce risposta inviata dal server in seguito al comando SHOW LAVAGNA
+ * 
+ * @param head Puntatore all'header della risposta
+ * @param payload Puntatore al payload della risposta
+ *  
+ */
+void response_show_lavagna_handler(MsgHeader* head, char* payload);
+
+/**
+ * @brief Gestisce risposta inviata dal server in seguito al comando SEND USER LIST
+ * 
+ * @param head Puntatore all'header della risposta
+ * @param payload Puntatore al payload della risposta
+ *  
+ */
+void response_send_user_list_handler(MsgHeader* head, char* payload);
+
 #endif

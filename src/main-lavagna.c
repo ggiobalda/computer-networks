@@ -108,11 +108,12 @@ int main() {
 						case UtB_SHOW_LAVAGNA:
 							server_show_lavagna_handler(kanban, i);
 							break;
-						/*
+						
 						case UtB_SEND_USER_LIST:
-							server_send_user_list_handler(...);
+							server_send_user_list_handler(kanban, i);
 							break;
 
+						/*
 						case UtB_PONG:
 							server_pong_handler(kanban, i);
 							break;

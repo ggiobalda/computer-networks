@@ -1,14 +1,9 @@
 #include "../../include/handlers/server_handlers.h"
 
-/**
- * @brief 
- * 
- * @param board 
- * @param socket 
- */
 void server_hello_handler(Board* board, int socket, void* payload) {
     printf("[SERVER] Ricevuto HELLO da socket %d\n", socket);
     
+    // registrazione utente
     MsgHelloPayload* new_user = (MsgHelloPayload*)payload;
     add_user(board, new_user->port, socket);
 
@@ -52,8 +47,21 @@ void server_available_card_handler(Board* board) {
 void server_show_lavagna_handler(Board* board, int socket) {
     char buf[MAX_PAYLOAD];
 
+    // stringify board e invio
     board_to_string(board, buf, sizeof(buf));
     send_msg(socket, BtU_SHOW_LAVAGNA, buf, strlen(buf) + 1);
     
     printf("[SERVER] Inviato stato lavagna al socket %d\n", socket);
+}
+
+void server_send_user_list_handler(Board* board, int socket) {
+    MsgUserListPayload payload;
+    payload.n_users = 0;
+
+    // popolamento lista e invio
+    for (User* p = board->users; p != NULL && payload.n_users < MAX_USERS; p = p->next)
+        payload.users_ports[payload.n_users++] = p->id;
+    send_msg(socket, BtU_SEND_USER_LIST, &payload, sizeof(payload));
+
+    printf("[SERVER] Inviata lista utenti al socket %d\n", socket);
 }

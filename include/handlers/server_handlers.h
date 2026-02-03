@@ -44,4 +44,13 @@ void server_available_card_handler(Board* board);
  */
 void server_show_lavagna_handler(Board* board, int socket);
 
+/**
+ * @brief Gestisce richiesta di SEND LIST USER di un utente
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore del socket dell'utente
+ *  
+ */
+void server_send_user_list_handler(Board* board, int socket);
+
 #endif

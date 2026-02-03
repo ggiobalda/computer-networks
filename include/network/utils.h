@@ -106,6 +106,28 @@ typedef struct {
 } MsgAvailableCardPayload;
 
 /**
+ * @brief Payload per inviare lavagna sotto forma di stringa
+ * 
+ * @param string Buffer contenente payload
+ * 
+ */
+typedef struct {
+    char string[MAX_PAYLOAD];
+} MsgShowLavagnaPayload;
+
+/**
+ * @brief Payload per inviare lista di utenti connessi
+ * 
+ * @param n_users Numero utenti
+ * @param users_ports Lista utenti
+ * 
+ */
+typedef struct {
+    int n_users;
+    int users_ports[MAX_USERS];
+} MsgUserListPayload;
+
+/**
  * @brief Payload inviato da ogni utente nell'asta a tutti gli altri
  * 
  * @param card_id ID della card oggetto dell'asta 
