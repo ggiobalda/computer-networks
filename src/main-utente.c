@@ -1,7 +1,9 @@
 #include "../include/network/utils.h"
 #include "../include/classes/card.h"
 #include "../include/classes/user.h"
-#include "../include/handlers/client_handlers.h"
+#include "../include/handlers/client/cli_handlers.h"
+#include "../include/handlers/client/p2p_auction_handlers.h"
+#include "../include/handlers/client/server_msg_handlers.h"
 
 int main(int argc, char* argv[]) {
 	// controllo argomenti
@@ -21,7 +23,7 @@ int main(int argc, char* argv[]) {
 	struct sockaddr_in server_addr;
 
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("[CLIENT] Errore creazione socket server\n");
+		perror("Errore creazione socket server\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -30,18 +32,18 @@ int main(int argc, char* argv[]) {
 	inet_pton(AF_INET, BOARD_ADDRESS, &server_addr.sin_addr);
 
 	if (connect(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-		perror("[CLIENT] Errore connessione al server\n");
+		perror("Errore connessione al server\n");
 		exit(EXIT_FAILURE);
 	}
 
-	printf("[CLIENT] Connesso alla Lavagna sulla porta %d\n", BOARD_PORT);
+	printf("Connesso alla Lavagna sulla porta %d\n", BOARD_PORT);
 
 	/* 2) SETUP SOCKET P2P */
 	int p2p_sock;
 	struct sockaddr_in my_addr;
 
 	if ((p2p_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("[CLIENT] Errore creazione socket p2p\n");
+		perror("Errore creazione socket p2p\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -51,17 +53,17 @@ int main(int argc, char* argv[]) {
 
 	// configurazione socket per l'ascolto 
 	if (bind(p2p_sock, (struct sockaddr*)&my_addr, sizeof(my_addr)) < 0) {
-		perror("[CLIENT] Errore bind socket p2p2\n");
+		perror("Errore bind socket p2p2\n");
 		close(p2p_sock);
 		return(EXIT_FAILURE);
 	}
 	if (listen(p2p_sock, 5) < 0)  {
-		perror("[CLIENT] Errore listen socket p2p\n");
+		perror("Errore listen socket p2p\n");
 		close(p2p_sock);
 		return(EXIT_FAILURE);
 	}
 
-	printf("[CLIENT] In ascolto per P2P sulla porta %d\n", my_port);
+	printf("In ascolto per P2P sulla porta %d\n", my_port);
 	
 	/* 3) INVIO HELLO (REGISTRAZIONE)*/
 	MsgHelloPayload hello;
@@ -73,7 +75,7 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    printf("[CLIENT] HELLO inviato. Digita QUIT per uscire.\n");
+    printf("HELLO inviato. Digita QUIT per uscire.\n");
 	
 	/* 4) MAIN LOOP */
 	fd_set read_fds, master_fds;
@@ -88,7 +90,7 @@ int main(int argc, char* argv[]) {
         read_fds = master_fds;
 
         if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
-            perror("[CLIENT] Errore select\n");
+            perror("Errore select\n");
             break;
         }
 
@@ -100,18 +102,18 @@ int main(int argc, char* argv[]) {
 
         // B) MESSAGGI DAL SERVER
         if (FD_ISSET(server_sock, &read_fds)) {
-            if (server_msg_handler(server_sock) <= 0)
+            if (server_msg_handler(server_sock, my_port) <= 0)
 				break;
         }
 
         // C) CONNESSIONI P2P
         if (FD_ISSET(p2p_sock, &read_fds)) {
-            //p2p_msg_handler(p2p_sock);
+            p2p_msg_handler(p2p_sock, server_sock);
         }
     }
 
 	/* 5) CLEANUP */
-	printf("[CLIENT] Chiusura client\n");
+	printf("Chiusura client\n");
 	close(server_sock);
 	close(p2p_sock);
 	

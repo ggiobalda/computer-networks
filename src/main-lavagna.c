@@ -12,7 +12,7 @@ int main() {
 		sprintf(desc, "Card%d", i);
 		add_card(kanban, TODO, desc);
 	}
-	printf("[SERVER] Lavagna inizializzata\n");
+	printf("Lavagna inizializzata\n");
 
 	// stampa iniziale
 	char printbuf[MAX_PAYLOAD_SIZE];
@@ -22,7 +22,7 @@ int main() {
 	// creazione socket per l'ascolto
 	int server_sock;
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("[SERVER] Errore creazione socket\n");
+		perror("Errore creazione socket\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -34,16 +34,16 @@ int main() {
 
 	// configurazione socket 
 	if (bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-		perror("[SERVER] Errore bind socket\n");
+		perror("Errore bind socket\n");
 		close(server_sock);
 		return(EXIT_FAILURE);
 	}
 	if (listen(server_sock, MAX_USERS) < 0)  {
-		perror("[SERVER] Errore listen socket\n");
+		perror("Errore listen socket\n");
 		close(server_sock);
 		return(EXIT_FAILURE);
 	}
-	printf("[SERVER] In ascolto sulla porta %d...\n", BOARD_PORT);
+	printf("In ascolto sulla porta %d...\n", BOARD_PORT);
 
 	// inizializzazione liste socket
 	fd_set read_fds, master_fds;
@@ -62,7 +62,7 @@ int main() {
 		tv.tv_usec = 0;
 
 		if (select(max_fd + 1, &read_fds, NULL, NULL, &tv) < 0) {
-			perror("[SERVER] Errore select\n");
+			perror("Errore select\n");
 			exit(EXIT_FAILURE);
 		}
 
@@ -77,10 +77,10 @@ int main() {
 					socklen_t addr_len = sizeof(client_addr);
 
 					if ((newfd = accept(server_sock, (struct sockaddr*)&server_addr, &addr_len)) < 0) {
-						perror("[SERVER] Errore accept\n");
+						perror("Errore accept\n");
 						continue;
 					}
-					printf("[SERVER] Nuovo socket connesso: %d\n", newfd);
+					printf("Nuovo socket connesso: %d\n", newfd);
 
 					// aggiornamento fdset
 					FD_SET(newfd, &master_fds);
@@ -99,7 +99,7 @@ int main() {
 						continue;
 					}
 					else if (ret < 0){
-						printf("[SERVER] Errore ricezione messaggio\n");
+						printf("Errore ricezione messaggio\n");
 						continue;
 					}
 
@@ -140,7 +140,7 @@ int main() {
 							break;
 						
                         default:
-                                printf("[SERVER] Messaggio tipo %d non gestito\n", head.type);
+                                printf("Messaggio tipo %d non gestito\n", head.type);
 					}
 				}
 			}

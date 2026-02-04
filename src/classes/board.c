@@ -71,6 +71,7 @@ void board_to_string(const Board* board, char* buffer, int max_len) {
         }
     }
 
+    offset += snprintf(buffer + offset, max_len - offset, "\n Numero utenti: %d", board->n_users);
     offset += snprintf(buffer + offset, max_len - offset, "\n=====================\n");
 }
 
@@ -99,6 +100,7 @@ void add_user(Board* board, int port, int socket) {
     // caso lista vuota
     if (p == NULL) {
         board->users = u;
+        board->n_users++;
         return;
     }
 
@@ -130,7 +132,7 @@ void remove_user(Board* board, int socket) {
 
     // caso utente non presente
     if (q == NULL) {
-        printf("[SERVER] Utente non presente in lista\n");
+        printf("Utente non presente in lista\n");
         return;
     }
 
@@ -162,7 +164,7 @@ void board_move_card(Board* board, int card_id, Column from, Column to, int user
 
     // card non presente
     if (card == NULL) {
-        printf("[SERVER] Card non presente in lista\n");
+        printf("Card non presente in lista\n");
         return;
     }
 

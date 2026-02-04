@@ -29,6 +29,7 @@
 #define MAX_PAYLOAD_SIZE 1024
 #define PING_INTERVAL 90
 #define PONG_INTERVAL 30
+#define COST_MAX 100
 
 /**
  * @brief Colonne nella lavagna
