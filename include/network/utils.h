@@ -27,7 +27,7 @@
 #define MAX_CARD_DESC_CHARS 30
 #define N_COLUMNS 3
 #define MAX_PAYLOAD_SIZE 1024
-#define PING_INTERVAL 10
+#define PING_INTERVAL 90
 #define PONG_INTERVAL 30
 
 /**
@@ -135,6 +135,26 @@ typedef struct {
     int cost;
     int sender_port;
 } MsgChooseUserPayload;
+
+/**
+ * @brief Payload per creare nuova card, inviato da utente
+ * 
+ * @param description Buffer contenente descrizione nuova card
+ *  
+ */
+typedef struct {
+    char description[MAX_CARD_DESC_CHARS];
+} MsgCreateCardPayload;
+
+/**
+ * @brief Payload inviato da utente per fare ACK di una card
+ * 
+ * @param card_id ID della card
+ * 
+ */
+typedef struct {
+    int card_id;
+} MsgAckCardPayload;
 
 /**
  * @brief Invia un messaggio tramite socket

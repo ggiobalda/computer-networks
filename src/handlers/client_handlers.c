@@ -1,12 +1,14 @@
 #include "../../include/handlers/client_handlers.h"
 
 int user_input_handler(int server_socket) {
-    char command[100];
-    
     // legge da STDIN e rimuove newline
-    if (fgets(command, sizeof(command), stdin) == NULL)
+    char input[256];
+    if (fgets(input, sizeof(input), stdin) == NULL)
         return 1;
-    command[strcspn(command, "\n")] = 0;
+    input[strcspn(input, "\n")] = 0;
+
+    char* command = strtok(input, " ");
+    char* args = strtok(NULL, "");
 
     // switch comandi
     if (!strcmp(command, "QUIT")) {
@@ -20,16 +22,13 @@ int user_input_handler(int server_socket) {
         command_send_user_list_handler(server_socket);
     }
     else if (!strcmp(command, "CREATE_CARD")) {
-        // handler
+        command_create_card_handler(server_socket, args);
     }
     else if (!strcmp(command, "ACK_CARD")) {
-        // handler
-    }
-    else if (!strcmp(command, "CHOOSE_USER")) {
-        // handler
+        command_ack_card_handler(server_socket, args);
     }
     else if (!strcmp(command, "CARD_DONE")) {
-        // handler
+        command_card_done_handler(server_socket);
     }
     else printf("[CLIENT] Comando non riconosciuto\n");
     
@@ -92,24 +91,63 @@ void handle_p2p_connection(int p2p_socket) {
 */
 
 void command_quit_handler(int server_socket) {
-    printf("[CLIENT] Avvio procedura di disconnessione...\n");
-
     if (send_msg(server_socket, UtB_QUIT, NULL, 0) < 0)
         perror("[CLIENT] Errore nell'invio di QUIT\n");
+    else
+        printf("[CLIENT] Richiesta QUIT inviata\n");
 }
 
 void command_show_lavagna_handler(int server_socket) {
-    printf("[CLIENT] Invio richiesta al server...\n");
-
     if (send_msg(server_socket, UtB_SHOW_LAVAGNA, NULL, 0) < 0)
         perror("[CLIENT] Errore nell'invio di SHOW LAVAGNA\n");
+    else
+        printf("[CLIENT] Richiesta SHOW LAVAGNA inviata\n");
 }
 
 void command_send_user_list_handler(int server_socket) {
-    printf("[CLIENT] Invio richiesta al server...\n");
-
     if (send_msg(server_socket, UtB_SEND_USER_LIST, NULL, 0) < 0)
         perror("[CLIENT] Errore nell'invio di SEND USER LIST\n");
+    else
+        printf("[CLIENT] Richiesta SEND USER LIST inviata\n");
+}
+
+void command_create_card_handler(int server_socket, char* args) {
+    if (args == NULL || strlen(args) == 0) {
+        printf("[CLIENT] Errore: Inserisci una descrizione. Uso: CREATE_CARD <descrizione>\n");
+        return;
+    }
+
+    MsgCreateCardPayload payload;
+    strncpy(payload.description, args, MAX_CARD_DESC_CHARS - 1);
+    payload.description[MAX_CARD_DESC_CHARS - 1] = '\0';
+
+    if (send_msg(server_socket, UtB_CREATE_CARD, &payload, sizeof(payload)) < 0)
+        perror("[CLIENT] Errore nell'invio di SEND USER LIST\n");
+    else
+        printf("[CLIENT] Richiesta creazione card inviata: \"%s\"\n", payload.description);
+}
+
+void command_ack_card_handler(int server_socket, char* args) {
+    if (args == NULL) {
+        printf("[CLIENT] Errore: Specifica ID. Uso: ACK_CARD <id>\n");
+        return;
+    }
+    
+    int card_id = atoi(args);
+    MsgAckCardPayload payload;
+    payload.card_id = card_id;
+
+    if (send_msg(server_socket, UtB_ACK_CARD, &payload, sizeof(payload)) < 0)
+        perror("[CLIENT] Errore nell'invio di SEND USER LIST\n");
+    else
+        printf("[CLIENT] Inviato ACK per card %d\n", card_id);
+}
+
+void command_card_done_handler(int server_socket) {
+    if (send_msg(server_socket, UtB_CARD_DONE, NULL, 0) < 0)
+        perror("[CLIENT] Errore nell'invio di SEND USER LIST\n");
+    else
+        printf("[CLIENT] Inviato completamento lavoro (CARD_DONE).\n");
 }
 
 void response_show_lavagna_handler(MsgHeader* head, char* payload) {

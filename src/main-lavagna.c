@@ -12,11 +12,6 @@ int main() {
 		sprintf(desc, "Card%d", i);
 		add_card(kanban, TODO, desc);
 	}
-	// DEBUG
-	Card* c = create_card(6666, DOING, "TEST TEST TEST");
-	c->user_id = 9999;
-	kanban->lists[DOING] = c;
-
 	printf("[SERVER] Lavagna inizializzata\n");
 
 	// stampa iniziale
@@ -70,8 +65,6 @@ int main() {
 			perror("[SERVER] Errore select\n");
 			exit(EXIT_FAILURE);
 		}
-
-		server_check_timeouts(kanban);
 
 		for (int i = 0; i <= max_fd; i++) {
 			if (FD_ISSET(i, &read_fds)) {
@@ -134,25 +127,26 @@ int main() {
 							server_pong_handler(kanban, i);
 							break;
 							
-						/*
 						case UtB_CREATE_CARD:
 							server_create_card_handler(kanban, i, buffer);
 							break;
 						
 						case UtB_ACK_CARD:
-							server_ACK_CARD_handler(kanban, i);
+							server_ack_card_handler(kanban, i, buffer);
 							break;
 						
 						case UtB_CARD_DONE:
-							server_CARD_DONE_handler(kanban, i);
+							server_card_done_handler(kanban, i);
 							break;
-						*/
+						
                         default:
                                 printf("[SERVER] Messaggio tipo %d non gestito\n", head.type);
 					}
 				}
 			}
 		}
+		
+		server_check_timeouts(kanban);
 	}
 
 	return 0;

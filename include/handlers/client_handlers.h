@@ -55,6 +55,32 @@ void command_show_lavagna_handler(int server_socket);
 void command_send_user_list_handler(int server_socket);
 
 /**
+ * @brief Gestisce comando CREATE CARD
+ * 
+ * @param server_socket Descrittore di socket del server
+ * @param args Argomento passato col comando (descrizione card)
+ * 
+ */
+void command_create_card_handler(int server_socket, char* args);
+
+/**
+ * @brief Gestisce comando ACK CARD 
+ * 
+ * @param server_socket Descrittore di socket del server
+ * @param args Argomento passato col comando (id card)
+ * 
+ */
+void command_ack_card_handler(int server_socket, char* args);
+
+/**
+ * @brief Gestisce comando CARD DONE
+ * 
+ * @param server_socket Descrittore di socket del server
+ * 
+ */
+void command_card_done_handler(int server_socket);
+
+/**
  * @brief Gestisce risposta inviata dal server in seguito al comando SHOW LAVAGNA
  * 
  * @param head Puntatore all'header della risposta

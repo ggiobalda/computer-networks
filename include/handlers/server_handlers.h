@@ -69,4 +69,39 @@ void server_pong_handler(Board* board, int socket);
  */
 void server_check_timeouts(Board* board);
 
+/**
+ * @brief Gestisce richiesta di CREATE CARD di un utente
+ * 
+ * Crea card estraendo descrizione dal payload
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore del socket dell'utente
+ * @param payload Puntatore al buffer contenente il corpo del messaggio
+ * 
+ */
+void server_create_card_handler(Board* board, int socket, void* payload);
+
+/**
+ * @brief Gestisce richiesta di ACK CARD di un utente
+ * 
+ * Assegna card all'utente spostandola in DOING
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore del socket dell'utente
+ * @param payload Puntatore al buffer contenente il corpo del messaggio
+ * 
+ */
+void server_ack_card_handler(Board* board, int socket, void* payload);
+
+/**
+ * @brief Gestisce richiesta di CARD DONE di un utente
+ * 
+ * Sposta card assegnata all'utente in DONE
+ * 
+ * @param board Puntatore alla lavagna
+ * @param socket Descrittore del socket dell'utente
+ * 
+ */
+void server_card_done_handler(Board* board, int socket);
+
 #endif

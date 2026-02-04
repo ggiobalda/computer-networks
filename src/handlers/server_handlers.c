@@ -124,3 +124,44 @@ void server_check_timeouts(Board* board) {
         c = next;
     }
 }
+
+void server_create_card_handler(Board* board, int socket, void* payload) {
+    MsgCreateCardPayload* msg = (MsgCreateCardPayload*)payload;
+    add_card(board, TODO, msg->description);
+    
+    printf("[SERVER] Creata nuova card: %s (richiesta da socket %d)\n", msg->description, socket);
+}
+
+void server_ack_card_handler(Board* board, int socket, void* payload) {
+    MsgAckCardPayload* msg = (MsgAckCardPayload*)payload;
+    
+    // recupero utente e controllo se disponibile
+    User* u = find_user_by_socket(board->users, socket);
+    if (u == NULL)
+        return;
+    if (u->current_card_id != -1) {
+        printf("[SERVER] Utente %d ha già la card %d, non può prenderne un'altra!\n", u->id, u->current_card_id);
+        return;
+    }
+
+    // assegna card e aggiorna stato utente
+    board_move_card(board, msg->card_id, TODO, DOING, u->id);
+    u->current_card_id = msg->card_id;
+    
+    printf("[SERVER] Card %d assegnata all'utente %d (Spostata in DOING)\n", msg->card_id, u->id);
+}
+
+void server_card_done_handler(Board* board, int socket) {
+    // recupero utente e controllo card assegnata
+    User* u = find_user_by_socket(board->users, socket);
+    if (u == NULL || u->current_card_id == -1) {
+        printf("[SERVER] Utente %d ha inviato DONE ma non ha card assegnate.\n", socket);
+        return;
+    }
+
+    // sposto card in done e aggiorno stato utente
+    board_move_card(board, u->current_card_id, DOING, DONE, -1);
+    u->current_card_id = -1;
+
+    printf("[SERVER] Card %d completata dall'utente %d (Spostata in DONE)\n", u->current_card_id, u->id);
+}
