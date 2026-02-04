@@ -4,6 +4,7 @@
 #include "../include/handlers/client_handlers.h"
 
 int main(int argc, char* argv[]) {
+	// controllo argomenti
 	if (argc < 2) {
 		perror("Utilizzo: ./utente <porta>\n");
 		exit(EXIT_FAILURE);

@@ -5,36 +5,39 @@
 #include "../include/handlers/server_handlers.h"
 
 int main() {
-	/* 1) INIZIALIZZAZIONE KANBAN E STAMPA */
+	// inizializzazione kanban con qualche card
 	Board* kanban = create_board(BOARD_PORT);
-
-	// creazione di qualche card iniziale
 	for (int i = 0; i < 5; i++) {
 		char desc[MAX_CARD_DESC_CHARS];
 		sprintf(desc, "Card%d", i);
 		add_card(kanban, TODO, desc);
 	}
+	// DEBUG
+	Card* c = create_card(6666, DOING, "TEST TEST TEST");
+	c->user_id = 9999;
+	kanban->lists[DOING] = c;
 
 	printf("[SERVER] Lavagna inizializzata\n");
+
+	// stampa iniziale
 	char printbuf[MAX_PAYLOAD_SIZE];
 	board_to_string(kanban, printbuf, sizeof(printbuf));
 	printf("%s", printbuf);
 
-	/* 2) SETUP DEL SERVER */
-	// socket per l'ascolto
+	// creazione socket per l'ascolto
 	int server_sock;
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("[SERVER] Errore creazione socket\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	// indirizzo server
+	// configurazione indirizzo server
 	struct sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(BOARD_PORT);
 
-	// configurazione socket per l'ascolto 
+	// configurazione socket 
 	if (bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 		perror("[SERVER] Errore bind socket\n");
 		close(server_sock);
@@ -53,19 +56,29 @@ int main() {
 	FD_ZERO(&master_fds);
 	FD_SET(server_sock, &master_fds);
 	int max_fd = server_sock;
+
+	// struct per timeout
+	struct timeval tv;
 	
-	/* 3) GESTIONE RICHIESTE CON CICLO INFINITO */
+	// gestione richieste con ciclo infinito
 	for (;;) {
 		read_fds = master_fds;
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
 
-		if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
+		if (select(max_fd + 1, &read_fds, NULL, NULL, &tv) < 0) {
 			perror("[SERVER] Errore select\n");
 			exit(EXIT_FAILURE);
 		}
 
+		server_check_timeouts(kanban);
+
 		for (int i = 0; i <= max_fd; i++) {
 			if (FD_ISSET(i, &read_fds)) {
-				if (i == server_sock) { // Caso A: nuova connessione
+				
+				// nuova connessione
+				if (i == server_sock) {
+					// creazione nuovo socket e accept
 					int newfd;
 					struct sockaddr_in client_addr;
 					socklen_t addr_len = sizeof(client_addr);
@@ -74,17 +87,20 @@ int main() {
 						perror("[SERVER] Errore accept\n");
 						continue;
 					}
-
 					printf("[SERVER] Nuovo socket connesso: %d\n", newfd);
+
+					// aggiornamento fdset
 					FD_SET(newfd, &master_fds);
 					if (newfd > max_fd)
 						max_fd = newfd;
 				}
-				else { // caso B: client già connesso
+
+				// richiesta da socket già nel set
+				else {
+					// ricezione header messaggio e gestione errori
 					MsgHeader head;
 					char buffer[MAX_PAYLOAD_SIZE];
 					int ret = recv_msg(i, &head, buffer, sizeof(buffer));
-
 					if (ret == 0) {
 						server_quit_handler(kanban, i, &master_fds);
 						continue;
@@ -94,6 +110,7 @@ int main() {
 						continue;
 					}
 
+					// switch in base all'header
 					switch(head.type) {
 						case UtB_HELLO:
                             server_hello_handler(kanban, i, buffer);
@@ -113,11 +130,11 @@ int main() {
 							server_send_user_list_handler(kanban, i);
 							break;
 
-						/*
 						case UtB_PONG:
 							server_pong_handler(kanban, i);
 							break;
-						
+							
+						/*
 						case UtB_CREATE_CARD:
 							server_create_card_handler(kanban, i, buffer);
 							break;

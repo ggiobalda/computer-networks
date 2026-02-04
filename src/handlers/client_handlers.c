@@ -19,9 +19,6 @@ int user_input_handler(int server_socket) {
     else if (!strcmp(command, "SEND_USER_LIST")) {
         command_send_user_list_handler(server_socket);
     }
-    else if (!strcmp(command, "PONG_LAVAGNA")) {
-        // handler
-    }
     else if (!strcmp(command, "CREATE_CARD")) {
         // handler
     }
@@ -40,22 +37,24 @@ int user_input_handler(int server_socket) {
 }
 
 int server_msg_handler(int server_socket) {
+    // ricezione header messaggio e gestione errori
     MsgHeader head;
     char buffer[MAX_PAYLOAD_SIZE];
     int ret = recv_msg(server_socket, &head, buffer, sizeof(buffer));
-	
     if (ret <= 0) {
         printf("[CLIENT] Lavagna disconnessa. Terminazione.\n");
         return 0;
 	}
 
+    // switch in base all'header
     switch (head.type) {
         case BtU_AVAILABLE_CARD:
             //handler
             break;
         
         case BtU_PING:
-            //handler
+            send_msg(server_socket, UtB_PONG, NULL, 0);
+            printf("[CLIENT] Risposto al PING della lavagna.\n");
             break;
         
         case BtU_SHOW_LAVAGNA:

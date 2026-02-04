@@ -14,7 +14,7 @@ void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
     printf("[SERVER] Ricevuto QUIT da socket %d\n", socket);
 
     // revoca card assegnata
-    User* u = find_user(board->users, socket);
+    User* u = find_user_by_socket(board->users, socket);
     if (u->current_card_id != -1) {
         board_move_card(board, u->current_card_id, DOING, TODO, -1);
         printf("[SERVER] Card %d associata all'utente riposizionata in TODO\n", u->current_card_id);
@@ -76,7 +76,7 @@ void server_send_user_list_handler(Board* board, int socket) {
 
 void server_pong_handler(Board* board, int socket) {
     // recupera utente (se presente)
-    User* u = find_user(board->users, socket);
+    User* u = find_user_by_socket(board->users, socket);
     if (u == NULL){
         printf("[SERVER] Ricevuto PONG da utente non presente in kanban\n");
         return; 

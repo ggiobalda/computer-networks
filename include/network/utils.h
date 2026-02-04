@@ -27,7 +27,7 @@
 #define MAX_CARD_DESC_CHARS 30
 #define N_COLUMNS 3
 #define MAX_PAYLOAD_SIZE 1024
-#define PING_INTERVAL 90
+#define PING_INTERVAL 10
 #define PONG_INTERVAL 30
 
 /**
@@ -158,6 +158,6 @@ int send_msg(int socket, MsgType type, const void* payload, int payload_len);
  *
  * @return 1 se ha successo, error value altrimenti
  */
-int recv_msg(int socket, MsgHeader* head, void* payload, int MAX_PAYLOAD_SIZE_len);
+int recv_msg(int socket, MsgHeader* head, void* payload, int max_payload_len);
 
 #endif

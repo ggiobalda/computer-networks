@@ -33,11 +33,10 @@ void free_board(Board* board) {
     // deallocazione liste card
     for (int i = 0; i < 3; i++) {
         Card* p = board->lists[i];
-        Card* q;
         while (p != NULL) {
-            q = p->next;
+            Card* q = p->next;
             free_card(p);
-            q = p;
+            p = q;
         }
     }
 
@@ -152,7 +151,6 @@ Card* extract_card_list(Board* board, Column column) {
     return p;
 }
 
-// Funzione helper per spostare una card tra colonne
 void board_move_card(Board* board, int card_id, Column from, Column to, int user_id) {
     Card* p = NULL;
     Card* card = board->lists[from];
@@ -184,7 +182,6 @@ void board_move_card(Board* board, int card_id, Column from, Column to, int user
     Card* dest = board->lists[to];
     if (dest == NULL)
         board->lists[to] = card;
-    else 
-        while (dest->next != NULL) dest = dest->next;
+    else while (dest->next != NULL) dest = dest->next;
         dest->next = card;
 }
