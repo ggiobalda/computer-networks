@@ -48,7 +48,7 @@ void free_board(Board* board) {
 void board_to_string(const Board* board, char* buffer, int max_len) {
     int offset = 0; // contatore posizione nel buffer
 
-    offset += snprintf(buffer + offset, max_len - offset, "=== STATO LAVAGNA ===\n");
+    offset += snprintf(buffer + offset, max_len - offset, "\n===== STATO LAVAGNA =====\n");
 
     for (int i = TODO; i <= DONE; i++) {
         offset += snprintf(buffer + offset, max_len - offset, "\n--- %s ---\n", ColumnNames[i]);
@@ -72,7 +72,7 @@ void board_to_string(const Board* board, char* buffer, int max_len) {
     }
 
     offset += snprintf(buffer + offset, max_len - offset, "\n Numero utenti: %d", board->n_users);
-    offset += snprintf(buffer + offset, max_len - offset, "\n=====================\n");
+    offset += snprintf(buffer + offset, max_len - offset, "\n=========================\n\n");
 }
 
 void add_card(Board* board, Column column, const char* description) {
@@ -91,7 +91,6 @@ void add_card(Board* board, Column column, const char* description) {
     
     p->next = c;
 }
-
 
 void add_user(Board* board, int port, int socket) {
     User* u = create_user(port, socket);
@@ -186,6 +185,6 @@ void board_move_card(Board* board, int card_id, Column from, Column to, int user
         board->lists[to] = card;
     else while (dest->next != NULL) {
         dest = dest->next;
-        dest->next = card;
     }
+    dest->next = card;
 }

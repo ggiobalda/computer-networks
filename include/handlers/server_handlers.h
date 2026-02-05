@@ -96,7 +96,7 @@ void server_ack_card_handler(Board* board, int socket, void* payload);
 /**
  * @brief Gestisce richiesta di CARD DONE di un utente
  * 
- * Sposta card assegnata all'utente in DONE
+ * Sposta card assegnata all'utente in DONE e avvia una nuova asta se possibile
  * 
  * @param board Puntatore alla lavagna
  * @param socket Descrittore del socket dell'utente

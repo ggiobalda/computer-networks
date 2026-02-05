@@ -5,7 +5,8 @@
 #include "../include/handlers/server_handlers.h"
 
 int main() {
-	// inizializzazione kanban con qualche card
+	/* ------------- INIZIALIZZAZIONE ------------- */
+	// creazione kanban con qualche card
 	Board* kanban = create_board(BOARD_PORT);
 	for (int i = 0; i < 5; i++) {
 		char desc[MAX_CARD_DESC_CHARS];
@@ -19,12 +20,20 @@ int main() {
 	board_to_string(kanban, printbuf, sizeof(printbuf));
 	printf("%s", printbuf);
 
+	/* ------------- SETUP SOCKET SERVER ------------- */
 	// creazione socket per l'ascolto
 	int server_sock;
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Errore creazione socket\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// imposto indirizzo come riutilizzabile, così lavagna può essere subito riavviata
+	int opt = 1;
+    if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        perror("Errore setsockopt\n");
+        exit(EXIT_FAILURE);
+    }
 	
 	// configurazione indirizzo server
 	struct sockaddr_in server_addr;
@@ -45,9 +54,9 @@ int main() {
 	}
 	printf("In ascolto sulla porta %d...\n", BOARD_PORT);
 
-	// inizializzazione liste socket
+	/* ------------- MAIN LOOP ------------- */
+	// inizializzazione lista descrittori socket
 	fd_set read_fds, master_fds;
-	FD_ZERO(&read_fds);
 	FD_ZERO(&master_fds);
 	FD_SET(server_sock, &master_fds);
 	int max_fd = server_sock;
@@ -57,15 +66,18 @@ int main() {
 	
 	// gestione richieste con ciclo infinito
 	for (;;) {
+		// copia lista master in lettura e reset timeout
 		read_fds = master_fds;
 		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 
+		// select socket attivo
 		if (select(max_fd + 1, &read_fds, NULL, NULL, &tv) < 0) {
 			perror("Errore select\n");
 			exit(EXIT_FAILURE);
 		}
 
+		// scorro lista descrittori
 		for (int i = 0; i <= max_fd; i++) {
 			if (FD_ISSET(i, &read_fds)) {
 				
@@ -146,6 +158,7 @@ int main() {
 			}
 		}
 		
+		// controllo ping/pong
 		server_check_timeouts(kanban);
 	}
 

@@ -1,29 +1,36 @@
 #include "../../include/handlers/server_handlers.h"
 
 void server_hello_handler(Board* board, int socket, void* payload) {
-    printf("Ricevuto HELLO da socket %d\n", socket);
+    printf("\n--- NUOVO UTENTE REGISTRATO ---\n");
     
     // registrazione utente
     MsgHelloPayload* new_user = (MsgHelloPayload*)payload;
     add_user(board, new_user->port, socket);
 
-    printf("Utente con socket %d e porta %d aggiunto con successo\n", socket, new_user->port);
+    printf("-> Utente aggiunto: Socket %d | Porta %d\n", socket, new_user->port);
+    printf("-------------------------------\n\n");
 }
 
 void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
-    printf("Ricevuto QUIT da socket %d\n", socket);
+    printf("\n!!! DISCONNESIONE UTENTE !!!\n");
 
     // revoca card assegnata
     User* u = find_user_by_socket(board->users, socket);
     if (u->current_card_id != -1) {
         board_move_card(board, u->current_card_id, DOING, TODO, -1);
-        printf("Card %d associata all'utente riposizionata in TODO\n", u->current_card_id);
+        printf("-> Card %d abbandonata! Riposizionata in TODO.\n", u->current_card_id);
     }
     
     // rimozione utente da lista, chiusura socket e pulizia fd set
     remove_user(board, socket);
     close(socket);
     FD_CLR(socket, master_fds);
+
+    printf("----------------------------\n");
+
+    // avvio asta
+    if (board->n_users > 1)
+        server_available_card_handler(board);
 }
 
 void server_available_card_handler(Board* board) {
@@ -31,11 +38,14 @@ void server_available_card_handler(Board* board) {
         return;
     
     // estrazione card
-    Card* task = extract_card_list(board, TODO);
+    Card* task = board->lists[TODO];
     if (task == NULL)
         return;
     
-    printf("Avvio asta per card %d\n", task->id);
+    printf("\n\n========================================\n");
+    printf("        AVVIO ASTA PER CARD %d\n", task->id);
+    printf("========================================\n");
+    printf("Descrizione: %s\n", task->description);
     
     // preparazione payload
     MsgAvailableCardPayload payload;
@@ -50,6 +60,8 @@ void server_available_card_handler(Board* board) {
     // invio payload a tutti gli utenti
     for (User* u = board->users; u != NULL; u = u->next)
         send_msg(u->socket, BtU_AVAILABLE_CARD, &payload, sizeof(payload));
+    
+    printf("-> Invito inviato a %d utenti.\n", board->n_users);
 }
 
 void server_show_lavagna_handler(Board* board, int socket) {
@@ -86,11 +98,11 @@ void server_pong_handler(Board* board, int socket) {
     Card* c = find_card(board->lists[DOING], u->current_card_id);
     if (c != NULL) {
         c->last_updated = time(NULL);
-        printf("PONG da utente %d. Timer resettato per card %d.\n", u->id, c->id);
+        printf("Ricevuto PONG da utente %d. Timer resettato per card %d.\n", u->id, c->id);
         return;
     }
 
-    printf("PONG da utente %d, nessuna card associata\n", u->id);
+    printf("Ricevuto PONG da utente %d, nessuna card associata\n", u->id);
 }
 
 void server_check_timeouts(Board* board) {
@@ -148,20 +160,32 @@ void server_ack_card_handler(Board* board, int socket, void* payload) {
     board_move_card(board, msg->card_id, TODO, DOING, u->id);
     u->current_card_id = msg->card_id;
     
-    printf("Card %d assegnata all'utente %d (Spostata in DOING)\n", msg->card_id, u->id);
+    printf("\nCARD ASSEGNATA: Card %d -> Utente %d (DOING)\n", msg->card_id, u->id);
 }
 
 void server_card_done_handler(Board* board, int socket) {
-    // recupero utente e controllo card assegnata
+    // recupero utente e controllo
     User* u = find_user_by_socket(board->users, socket);
-    if (u == NULL || u->current_card_id == -1) {
-        printf("Utente %d ha inviato DONE ma non ha card assegnate.\n", socket);
+    if (u == NULL) return;
+    if (u->current_card_id == -1) {
+        printf("Utente %d ha inviato DONE ma non ha card assegnate.\n", u->id);
+        return;
+    }
+
+    // recupero card e controllo
+    Card* c = find_card(board->lists[DOING], u->current_card_id);
+    if (c == NULL) {
+        printf("Card %d non trovata in DOING!\n", u->current_card_id);
+        u->current_card_id = -1; // reset forzato
         return;
     }
 
     // sposto card in done e aggiorno stato utente
-    board_move_card(board, u->current_card_id, DOING, DONE, -1);
+    board_move_card(board, u->current_card_id, DOING, DONE, u->id);
     u->current_card_id = -1;
 
-    printf("Card %d completata dall'utente %d (Spostata in DONE)\n", u->current_card_id, u->id);
+    printf("\nCARD COMPLETATA: Card %d (Utente %d) -> Spostata in DONE\n", c->id, u->id);
+
+    // avvia nuova asta 
+    server_available_card_handler(board);
 }

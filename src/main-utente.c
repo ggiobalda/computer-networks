@@ -6,47 +6,58 @@
 #include "../include/handlers/client/server_msg_handlers.h"
 
 int main(int argc, char* argv[]) {
+	/* ------------- INIZIALIZZAZIONE ------------- */
 	// controllo argomenti
 	if (argc < 2) {
 		perror("Utilizzo: ./utente <porta>\n");
 		exit(EXIT_FAILURE);
 	}
 
+	// recupero porta da argomento
 	int my_port = atoi(argv[1]);
 	if (my_port < MIN_PORT) {
-		printf("Porta non valida: valore minimo = %d", MIN_PORT);
+		printf("Porta non valida: valore minimo = %d\n", MIN_PORT);
 		exit(EXIT_FAILURE);
 	}
 
-	/* 1) SETUP SOCKET SERVER*/
+	/* ------------- SETUP SOCKET SERVER ------------- */
+	// creazione socket per comunicare col server
 	int server_sock;
-	struct sockaddr_in server_addr;
-
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Errore creazione socket server\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
+	// indirizzo server
+	struct sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(BOARD_PORT);
 	inet_pton(AF_INET, BOARD_ADDRESS, &server_addr.sin_addr);
 
+	// connessione col server
 	if (connect(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 		perror("Errore connessione al server\n");
 		exit(EXIT_FAILURE);
 	}
-
 	printf("Connesso alla Lavagna sulla porta %d\n", BOARD_PORT);
 
-	/* 2) SETUP SOCKET P2P */
+	/* ------------- SETUP SOCKET P2P ------------- */
+	// creazione socket per comunicare con altri utenti
 	int p2p_sock;
-	struct sockaddr_in my_addr;
-
 	if ((p2p_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Errore creazione socket p2p\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
+	// imposto indirizzo come riutilizzabile, così client può essere subito riavviato
+	int opt = 1;
+    if (setsockopt(p2p_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+		perror("Errore setsockopt\n");
+        exit(EXIT_FAILURE);
+    }
+	
+	// configurazione indirizzo p2p
+	struct sockaddr_in my_addr;
 	my_addr.sin_family = AF_INET;
 	my_addr.sin_addr.s_addr = INADDR_ANY;
 	my_addr.sin_port = htons(my_port);
@@ -62,57 +73,57 @@ int main(int argc, char* argv[]) {
 		close(p2p_sock);
 		return(EXIT_FAILURE);
 	}
-
 	printf("In ascolto per P2P sulla porta %d\n", my_port);
 	
-	/* 3) INVIO HELLO (REGISTRAZIONE)*/
+	/* ------------- REGISTRAZIONE ------------- */
 	MsgHelloPayload hello;
     hello.port = my_port;
-
     if (send_msg(server_sock, UtB_HELLO, &hello, sizeof(hello)) < 1) {
         perror("Errore invio HELLO\n");
         close(server_sock);
         exit(EXIT_FAILURE);
     }
-
     printf("HELLO inviato. Digita QUIT per uscire.\n");
 	
-	/* 4) MAIN LOOP */
+	/* ------------- MAIN LOOP ------------- */
+	// inizializzazione liste descrittori socket
 	fd_set read_fds, master_fds;
     FD_ZERO(&master_fds);
-    FD_SET(STDIN_FILENO, &master_fds);	// Input tastiera
-    FD_SET(server_sock, &master_fds);	// Messaggi dal server
-    FD_SET(p2p_sock, &master_fds);		// Messaggi P2P
-
+    FD_SET(STDIN_FILENO, &master_fds);	// input terminale
+    FD_SET(server_sock, &master_fds);	// messaggi dal server
+    FD_SET(p2p_sock, &master_fds);		// messaggi P2P
     int max_fd = (server_sock > p2p_sock) ? server_sock : p2p_sock;
 
+	// gestione richieste con ciclo infinito
     for (;;) {
-        read_fds = master_fds;
-
+        // copia lista master in lettura
+		read_fds = master_fds;
+		
+		// select socket attivo
         if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
             perror("Errore select\n");
             break;
         }
 
-        // A) INPUT TASTIERA
+        // A) è arrivato un input dal terminale
         if (FD_ISSET(STDIN_FILENO, &read_fds)) {
             if (user_input_handler(server_sock) < 0)
 				break;
         }
 
-        // B) MESSAGGI DAL SERVER
+        // B) è arrivato un messaggio dal server
         if (FD_ISSET(server_sock, &read_fds)) {
             if (server_msg_handler(server_sock, my_port) <= 0)
 				break;
         }
 
-        // C) CONNESSIONI P2P
+        // C) è arrivato un messaggio da un peer
         if (FD_ISSET(p2p_sock, &read_fds)) {
             p2p_msg_handler(p2p_sock, server_sock);
         }
     }
 
-	/* 5) CLEANUP */
+	/* ------------- PULIZIA FINALE ------------- */
 	printf("Chiusura client\n");
 	close(server_sock);
 	close(p2p_sock);

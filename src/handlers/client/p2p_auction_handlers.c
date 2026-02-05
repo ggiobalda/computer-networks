@@ -43,7 +43,7 @@ void p2p_msg_handler(int p2p_listener_sock, int server_socket) {
         return;
     }
     
-    printf("[ASTA] Ricevuto costo %d da porta %d\n", bid->cost, bid->sender_port);
+    printf("Ricevuto costo %d da porta %d\n", bid->cost, bid->sender_port);
     
     // aggiornamento costo minimo e porta associata
     if (bid->cost < current_min_cost) {
@@ -65,11 +65,12 @@ void p2p_msg_handler(int p2p_listener_sock, int server_socket) {
 
 void check_auction_winner(int server_socket) {
     if (bids_collected >= bids_expected) {
-        printf("Asta conclusa per card %d\n", auction_card_id);
+        printf("--------------------------------------------\n");
 
         if (current_winner_port == my_port_global) {
             am_i_busy = 1;
-            printf("HO VINTO IO! Invio ACK alla lavagna\n");
+            printf("\n*** HO VINTO L'ASTA PER LA CARD %d! ***\n", auction_card_id);
+            printf("-> Invio ACK e inizio lavoro...\n");
             
             // invio ACK
             MsgAckCardPayload ack;
@@ -77,8 +78,8 @@ void check_auction_winner(int server_socket) {
             send_msg(server_socket, UtB_ACK_CARD, &ack, sizeof(ack));
             
             // simulazione lavoro con sleep
-            printf("Inizio esecuzione task (Sleep 5s)...\n");
-            sleep(5); 
+            printf("... Esecuzione task in corso...\n");
+            sleep(10); 
             
             // invio DONE
             send_msg(server_socket, UtB_CARD_DONE, NULL, 0);
@@ -97,11 +98,13 @@ void check_auction_winner(int server_socket) {
 void response_available_card_handler(MsgHeader* head, char* payload, int server_socket, int my_port) {
     MsgAvailableCardPayload* msg = (MsgAvailableCardPayload*)payload;
     
-    printf("\n[ASTA] Nuova card disponibile: %d - \"%s\"\n", msg->card_id, msg->description);
+    printf("\n\n--------------------------------------------\n");
+    printf("[ASTA] NUOVA CARD DISPONIBILE: %d - \"%s\"\n", msg->card_id, msg->description);
+    printf("--------------------------------------------\n");
     
     // calcolo costo: se già occupato imposto al massimo per perdere asta
     int my_cost;
-    srand(time(NULL));
+    srand(time(NULL) + my_port); // randomicizzazione
     if (am_i_busy) {
         my_cost = COST_MAX;
         printf("[ASTA] Sono occupato. Costo impostato a INT_MAX.\n");
