@@ -13,9 +13,17 @@ void server_hello_handler(Board* board, int socket, void* payload) {
 
 void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
     printf("\n!!! DISCONNESIONE UTENTE !!!\n");
+    
+    // recupero utente e controllo errore
+    User* u = find_user_by_socket(board->users, socket);
+    if (u == NULL) {
+        printf("[WARNING] Socket %d chiuso ma utente non trovato in lista. Ignoro.\n", socket);
+        close(socket);
+        FD_CLR(socket, master_fds);
+        return;
+    }
 
     // revoca card assegnata
-    User* u = find_user_by_socket(board->users, socket);
     if (u->current_card_id != -1) {
         board_move_card(board, u->current_card_id, DOING, TODO, -1);
         printf("-> Card %d abbandonata! Riposizionata in TODO.\n", u->current_card_id);

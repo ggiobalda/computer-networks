@@ -6,6 +6,8 @@
 
 int main() {
 	/* ------------- INIZIALIZZAZIONE ------------- */
+	//debug
+	setbuf(stdout, NULL);
 	// ignora sigpipe per evitare crash se un client si disconnette mentre scriviamo
 	signal(SIGPIPE, SIG_IGN);
 
@@ -91,7 +93,7 @@ int main() {
 					struct sockaddr_in client_addr;
 					socklen_t addr_len = sizeof(client_addr);
 
-					if ((newfd = accept(server_sock, (struct sockaddr*)&server_addr, &addr_len)) < 0) {
+					if ((newfd = accept(server_sock, (struct sockaddr*)&client_addr, &addr_len)) < 0) {
 						perror("Errore accept\n");
 						continue;
 					}

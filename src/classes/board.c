@@ -181,10 +181,12 @@ void board_move_card(Board* board, int card_id, Column from, Column to, int user
 
     // aggiunta alla lista to
     Card* dest = board->lists[to];
-    if (dest == NULL)
+    if (dest == NULL) {
         board->lists[to] = card;
-    else while (dest->next != NULL) {
-        dest = dest->next;
+    } else {
+        while (dest->next != NULL) {
+            dest = dest->next;
+        }
+        dest->next = card;
     }
-    dest->next = card;
 }
