@@ -36,13 +36,20 @@ void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
 
     printf("----------------------------\n");
 
-    // avvio asta
+    // avvio asta se possibile
     if (board->n_users > 1)
         server_available_card_handler(board);
+    else
+        board->auction_in_progress = 0;
 }
 
 void server_available_card_handler(Board* board) {
-    if (board->n_users < 2)
+    // controlli: almeno due utenti e nessun'asta in corso
+    if (board->n_users < 2) {
+        board->auction_in_progress = 0;
+        return;
+    }
+    if (board->auction_in_progress)
         return;
     
     // estrazione card
@@ -50,6 +57,8 @@ void server_available_card_handler(Board* board) {
     if (task == NULL)
         return;
     
+    // avvio asta
+    board->auction_in_progress = 1;
     printf("\n\n========================================\n");
     printf("        AVVIO ASTA PER CARD %d\n", task->id);
     printf("========================================\n");
@@ -170,9 +179,10 @@ void server_ack_card_handler(Board* board, int socket, void* payload) {
         return;
     }
 
-    // assegna card e aggiorna stato utente
+    // assegna card, aggiorna stato utente e lavagna
     board_move_card(board, msg->card_id, TODO, DOING, u->id);
     u->current_card_id = msg->card_id;
+    board->auction_in_progress = 0;
     
     printf("\nCARD ASSEGNATA: Card %d -> Utente %d (DOING)\n", msg->card_id, u->id);
 }

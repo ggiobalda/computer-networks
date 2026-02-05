@@ -14,6 +14,7 @@ Board* create_board(int port) {
     new_board->id = port;
     new_board->n_users = 0;
     new_board->users = NULL;
+    new_board->auction_in_progress = 0;
     for (int i = 0; i < N_COLUMNS; i++)
         new_board->lists[i] = NULL;
     

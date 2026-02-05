@@ -18,12 +18,15 @@
  * @param n_users Numero di utenti attualmente connessi
  * @param users Lista degli utenti connessi
  * @param lists Array di liste di carte, una per colonna
+ * @param auction_in_progress Flag per indicare se c'è un asta in corso 
+ * 
  */
 typedef struct Board {
     int id;
     int n_users;
     User* users;
     Card* lists[N_COLUMNS];
+    int auction_in_progress;
 } Board;
 
 /**
