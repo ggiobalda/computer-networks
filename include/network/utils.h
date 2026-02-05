@@ -18,6 +18,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <time.h>
+#include <signal.h>
 
 // costanti
 #define BOARD_PORT 5678

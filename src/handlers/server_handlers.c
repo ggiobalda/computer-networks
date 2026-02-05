@@ -50,12 +50,18 @@ void server_available_card_handler(Board* board) {
     // preparazione payload
     MsgAvailableCardPayload payload;
     payload.card_id = task->id;
-    strcpy(payload.description, task->description);
-    payload.n_users = board->n_users;
+    strncpy(payload.description, task->description, MAX_CARD_DESC_CHARS-1);
+    payload.description[MAX_CARD_DESC_CHARS-1] = '\0';
     
     int i = 0;
-    for (User* u = board->users; u != NULL; u = u->next)
+    for (User* u = board->users; u != NULL; u = u->next) {
+        if (i >= MAX_USERS) {
+            printf("Warning: Numero utenti > MAX_USERS. Tronco la lista.\n");
+            break;
+        }
         payload.users_ports[i++] = u->id;
+    }
+    payload.n_users = i;
     
     // invio payload a tutti gli utenti
     for (User* u = board->users; u != NULL; u = u->next)

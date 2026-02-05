@@ -99,7 +99,7 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
     MsgAvailableCardPayload* msg = (MsgAvailableCardPayload*)payload;
     
     printf("\n\n--------------------------------------------\n");
-    printf("[ASTA] NUOVA CARD DISPONIBILE: %d - \"%s\"\n", msg->card_id, msg->description);
+    printf("NUOVA CARD DISPONIBILE: %d - \"%s\"\n", msg->card_id, msg->description);
     printf("--------------------------------------------\n");
     
     // calcolo costo: se già occupato imposto al massimo per perdere asta
@@ -107,11 +107,11 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
     srand(time(NULL) + my_port); // randomicizzazione
     if (am_i_busy) {
         my_cost = COST_MAX;
-        printf("[ASTA] Sono occupato. Costo impostato a INT_MAX.\n");
+        printf("Sono occupato. Costo impostato a INT_MAX.\n");
     }
     else {
         my_cost = rand() % COST_MAX;
-        printf("[ASTA] Sono libero. Il mio costo random è: %d\n", my_cost);
+        printf("Sono libero. Il mio costo random è: %d\n", my_cost);
     }
     
     // set variabili per l'asta
@@ -145,7 +145,7 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
 
         // connessione: in caso di errore scarto il peer
         if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-            perror("[ASTA] Errore connessione a peer");
+            perror("Errore connessione a peer");
             bids_expected--;
             close(sock);
             continue;
@@ -154,7 +154,7 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
         // invio costo
         send_msg(sock, UtU_COST, &p2p_msg, sizeof(p2p_msg));
         
-        printf("[ASTA] Inviato costo %d a porta %d\n", my_cost, msg->users_ports[i]);
+        printf("Inviato costo %d a porta %d\n", my_cost, msg->users_ports[i]);
         close(sock);
     }
 

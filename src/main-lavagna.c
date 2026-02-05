@@ -6,6 +6,9 @@
 
 int main() {
 	/* ------------- INIZIALIZZAZIONE ------------- */
+	// ignora sigpipe per evitare crash se un client si disconnette mentre scriviamo
+	signal(SIGPIPE, SIG_IGN);
+
 	// creazione kanban con qualche card
 	Board* kanban = create_board(BOARD_PORT);
 	for (int i = 0; i < 5; i++) {
