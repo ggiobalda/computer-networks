@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
 		perror("Errore creazione socket p2p\n");
 		exit(EXIT_FAILURE);
 	}
+	srand(time(NULL) + my_port); // randomicizzazione costo
 	
 	// imposto indirizzo come riutilizzabile, così client può essere subito riavviato
 	int opt = 1;
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]) {
         close(server_sock);
         exit(EXIT_FAILURE);
     }
-    printf("HELLO inviato. Digita QUIT per uscire.\n");
+    printf("Registrazione al server con HELLO avvenuta\n");
 	
 	/* ------------- MAIN LOOP ------------- */
 	// inizializzazione liste descrittori socket
@@ -94,16 +95,25 @@ int main(int argc, char* argv[]) {
     FD_SET(p2p_sock, &master_fds);		// messaggi P2P
     int max_fd = (server_sock > p2p_sock) ? server_sock : p2p_sock;
 
+	// struct per timeout
+	struct timeval tv;
+
+	printf("\nComandi disponibli:\n- QUIT, notifica server e termina esecuzione\n- SHOW_LAVAGNA, mostra stato attuale della lavagna\n- SEND_USER_LIST, ricevi lista utenti attualmente registrati\n- CREATE_CARD <descrizione> (max 30 caratteri), crea nuova card da porre in TODO\n\n");
+
 	// gestione richieste con ciclo infinito
     for (;;) {
-        // copia lista master in lettura
+        // copia lista master in lettura e calcolo timeout
 		read_fds = master_fds;
+		struct timeval* tv_ptr = get_task_timer(&tv);
 		
 		// select socket attivo
-        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
+        if (select(max_fd + 1, &read_fds, NULL, NULL, tv_ptr) < 0) {
             perror("Errore select\n");
             break;
         }
+
+		// controllo se task terminata
+		check_task_completion(server_sock);
 
         // A) è arrivato un input dal terminale
         if (FD_ISSET(STDIN_FILENO, &read_fds)) {

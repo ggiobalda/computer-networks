@@ -50,13 +50,22 @@ void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
 }
 
 void server_available_card_handler(Board* board) {
-    // controlli: almeno due utenti e nessun'asta in corso
+    // controlli: nessun'asta in corso e almeno due utenti, di cui almeno uno libero
+    if (board->auction_in_progress)
+        return;
     if (board->n_users < 2) {
         board->auction_in_progress = 0;
         return;
     }
-    if (board->auction_in_progress)
+    int free_users = 0;
+    for (User* u = board->users; u != NULL; u = u->next) {
+        if (u->current_card_id == -1)
+            free_users++;
+    }
+    if (free_users == 0) {
+        printf("Nessun utente libero disponibile per nuove card. Asta rimandata.\n");
         return;
+    }
     
     // estrazione card
     Card* task = board->lists[TODO];
@@ -170,10 +179,10 @@ void server_create_card_handler(Board* board, int socket, void* payload) {
     MsgCreateCardPayload* msg = (MsgCreateCardPayload*)payload;
     add_card(board, TODO, msg->description);
 
+    printf("Creata nuova card: %s (richiesta da socket %d)\n", msg->description, socket);
+    
     // avvia nuova asta se possibile
     server_available_card_handler(board);
-    
-    printf("Creata nuova card: %s (richiesta da socket %d)\n", msg->description, socket);
 }
 
 void server_ack_card_handler(Board* board, int socket, void* payload) {
@@ -185,6 +194,7 @@ void server_ack_card_handler(Board* board, int socket, void* payload) {
         return;
     if (u->current_card_id != -1) {
         printf("Utente %d ha già la card %d, non può prenderne un'altra!\n", u->id, u->current_card_id);
+        board->auction_in_progress = 0;
         return;
     }
 
@@ -193,10 +203,10 @@ void server_ack_card_handler(Board* board, int socket, void* payload) {
     u->current_card_id = msg->card_id;
     board->auction_in_progress = 0;
 
+    printf("\nCARD ASSEGNATA: Card %d -> Utente %d (DOING)\n", msg->card_id, u->id);
+
     // avvia nuova asta se possibile
     server_available_card_handler(board);
-    
-    printf("\nCARD ASSEGNATA: Card %d -> Utente %d (DOING)\n", msg->card_id, u->id);
 }
 
 void server_card_done_handler(Board* board, int socket) {

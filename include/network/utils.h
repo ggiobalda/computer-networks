@@ -20,7 +20,7 @@
 #include <time.h>
 #include <signal.h>
 
-// costanti
+/* ------------- COSTANTI ------------- */
 #define BOARD_PORT 5678
 #define BOARD_ADDRESS "127.0.0.1"
 #define MIN_PORT 5679
@@ -32,6 +32,7 @@
 #define PONG_INTERVAL 30
 #define COST_MAX 100
 
+/* ------------- STRUTTURE ------------- */
 /**
  * @brief Colonne nella lavagna
  *
@@ -157,6 +158,8 @@ typedef struct {
 typedef struct {
     int card_id;
 } MsgAckCardPayload;
+
+/* ------------- FUNZIONI ------------- */
 
 /**
  * @brief Invia un messaggio tramite socket

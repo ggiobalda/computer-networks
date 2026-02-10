@@ -19,7 +19,8 @@ void p2p_msg_handler(int p2p_listener_sock, int server_socket);
  * 
  * In tal caso manda ACK al server, simula lavoro e poi manda CARD DONE al server
  * 
- * @param server_socket Descrittore 
+ * @param server_socket Descrittore socket del server
+ * 
  */
 void check_auction_winner(int server_socket);
 
@@ -32,7 +33,24 @@ void check_auction_winner(int server_socket);
  * @param payload Puntatore al payload della risposta
  * @param server_socket Descrittore socket del server
  * @param my_port Porta dell'utente chiamante
+ * 
  */
 void response_available_card_handler(MsgHeader* head, char* payload, int server_socket, int my_port);
+
+/**
+ * @brief Calcola il timeout per la select nel main
+ * @param tv Puntatore alla struct timeval da riempire
+ * 
+ * @return Puntatore a tv se c'è un lavoro in corso, NULL se l'utente è libero
+ * 
+ */
+struct timeval* get_task_timer(struct timeval* tv);
+
+/**
+ * @brief Controlla se il lavoro simulato è finito
+ * @param server_socket Socket per inviare CARD_DONE
+ * 
+ */
+void check_task_completion(int server_socket);
 
 #endif

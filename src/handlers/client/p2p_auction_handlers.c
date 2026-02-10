@@ -9,6 +9,7 @@ static int bids_collected = 0;
 static int bids_expected = 0;
 static int current_min_cost = -1;
 static int current_winner_port = -1;
+static time_t end_work_time = 0;
 
 void p2p_msg_handler(int p2p_listener_sock, int server_socket) {
     // nuovo socket per peer
@@ -69,7 +70,6 @@ void check_auction_winner(int server_socket) {
         printf("--------------------------------------------\n");
 
         if (current_winner_port == my_port_global) {
-            am_i_busy = 1;
             printf("\n*** HO VINTO L'ASTA PER LA CARD %d! ***\n", auction_card_id);
             printf("-> Invio ACK e inizio lavoro...\n");
             
@@ -78,15 +78,11 @@ void check_auction_winner(int server_socket) {
             ack.card_id = auction_card_id;
             send_msg(server_socket, UtB_ACK_CARD, &ack, sizeof(ack));
             
-            // simulazione lavoro con sleep
-            printf("... Esecuzione task in corso...\n");
-            sleep(20); 
+            printf("... Esecuzione task in background. Continuo ad ascoltare per nuove aste...\n");
             
-            // invio DONE
-            send_msg(server_socket, UtB_CARD_DONE, NULL, 0);
-            printf("Lavoro terminato. Inviato CARD_DONE\n");
-
-            am_i_busy = 0;
+            // simulazione lavoro
+            am_i_busy = 1;
+            end_work_time = time(NULL) + 10;
         }
         else {
             printf("Asta persa. Porta vincitore: %d, costo: %d\n", current_winner_port, current_min_cost);
@@ -105,7 +101,6 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
     
     // calcolo costo: se già occupato imposto al massimo per perdere asta
     int my_cost;
-    srand(time(NULL) + my_port); // randomicizzazione
     if (am_i_busy) {
         my_cost = COST_MAX;
         printf("Sono occupato. Costo impostato a INT_MAX.\n");
@@ -116,7 +111,6 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
     }
     
     // set variabili per l'asta
-    am_i_busy = 0;
     cost_sent_to_everyone = 0;
     my_port_global = my_port;
     auction_card_id = msg->card_id;
@@ -163,4 +157,39 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
 
     // controllo se ho vinto
     check_auction_winner(server_socket);
+}
+
+struct timeval* get_task_timer(struct timeval* tv) {
+    if (!am_i_busy) {
+        return NULL;
+    }
+
+    time_t now = time(NULL);
+    if (now >= end_work_time) {
+        // tempo scaduto, risveglio main con timeout=0
+        tv->tv_sec = 0;
+        tv->tv_usec = 0;
+    } else {
+        // calcolo tempo rimanente
+        tv->tv_sec = end_work_time - now;
+        tv->tv_usec = 0;
+    }
+    return tv;
+}
+
+void check_task_completion(int server_socket) {
+    // se occupato e tempo scaduto
+    if (am_i_busy && time(NULL) >= end_work_time) {
+        printf("\n--------------------------------------------\n");
+        printf("LAVORO SIMULATO TERMINATO (Timer scaduto).\n");
+        
+        // invio DONE
+        send_msg(server_socket, UtB_CARD_DONE, NULL, 0);
+        printf("Inviato CARD_DONE alla lavagna.\n");
+        printf("--------------------------------------------\n");
+
+        // reset stato
+        am_i_busy = 0;
+        end_work_time = 0;
+    }
 }
