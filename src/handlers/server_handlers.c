@@ -12,8 +12,6 @@ void server_hello_handler(Board* board, int socket, void* payload) {
 }
 
 void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
-    printf("\n!!! DISCONNESIONE UTENTE !!!\n");
-    
     // recupero utente e controllo errore
     User* u = find_user_by_socket(board->users, socket);
     if (u == NULL) {
@@ -23,10 +21,18 @@ void server_quit_handler(Board* board, int socket, fd_set* master_fds) {
         return;
     }
 
+    printf("\n!!! DISCONNESIONE UTENTE %d!!!\n", u->id);    
+
     // revoca card assegnata
     if (u->current_card_id != -1) {
         board_move_card(board, u->current_card_id, DOING, TODO, -1);
+        
         printf("-> Card %d abbandonata! Riposizionata in TODO.\n", u->current_card_id);
+        
+        // stampa lavagna aggiornata
+        char buf[MAX_PAYLOAD_SIZE];
+        board_to_string(board, buf, sizeof(buf));
+        printf("%s", buf);
     }
     
     // rimozione utente da lista, chiusura socket e pulizia fd set
@@ -163,6 +169,9 @@ void server_check_timeouts(Board* board) {
 void server_create_card_handler(Board* board, int socket, void* payload) {
     MsgCreateCardPayload* msg = (MsgCreateCardPayload*)payload;
     add_card(board, TODO, msg->description);
+
+    // avvia nuova asta se possibile
+    server_available_card_handler(board);
     
     printf("Creata nuova card: %s (richiesta da socket %d)\n", msg->description, socket);
 }
@@ -183,6 +192,9 @@ void server_ack_card_handler(Board* board, int socket, void* payload) {
     board_move_card(board, msg->card_id, TODO, DOING, u->id);
     u->current_card_id = msg->card_id;
     board->auction_in_progress = 0;
+
+    // avvia nuova asta se possibile
+    server_available_card_handler(board);
     
     printf("\nCARD ASSEGNATA: Card %d -> Utente %d (DOING)\n", msg->card_id, u->id);
 }

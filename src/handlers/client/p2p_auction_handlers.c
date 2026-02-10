@@ -79,7 +79,7 @@ void check_auction_winner(int server_socket) {
             
             // simulazione lavoro con sleep
             printf("... Esecuzione task in corso...\n");
-            sleep(10); 
+            sleep(20); 
             
             // invio DONE
             send_msg(server_socket, UtB_CARD_DONE, NULL, 0);

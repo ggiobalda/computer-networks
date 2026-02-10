@@ -6,6 +6,7 @@ const char* ColumnNames[] = {"TO DO", "DOING", "DONE"};
  * @brief Funzione helper interna per leggere esattamente n bytes dal socket
  * 
  * @return Numero bytes letti, error value altrimenti
+ * 
  */
 int read_n_bytes(int socket, void* buffer, int n) {
     int bytes_read = 0;
@@ -26,6 +27,7 @@ int read_n_bytes(int socket, void* buffer, int n) {
  * @brief Funzione helper interna per scrivere esattamente n bytes nel socket
  * 
  * @return Numero bytes scritti, error value altrimenti 
+ * 
  */
 int write_n_bytes(int socket, const void* buffer, int n) {
     int bytes_written = 0;

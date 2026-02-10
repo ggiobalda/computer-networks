@@ -4,20 +4,28 @@
 #include "../include/classes/user.h"
 #include "../include/handlers/server_handlers.h"
 
+char* init_cards[10] = {
+	"Brainstorm progetto",
+	"Assegnazione ruoli progetto",
+	"Acquisizione risorse",
+	"Mockup iniziale",
+	"Sviluppo mockup in prototipo",
+	"Implementazione prototipo",
+	"Testing funzionalita' base",
+	"Raffinamento prototipo",
+	"Esposizione con investitori",
+	"Lancio sul mercato"
+};
+
 int main() {
 	/* ------------- INIZIALIZZAZIONE ------------- */
-	//debug
-	setbuf(stdout, NULL);
 	// ignora sigpipe per evitare crash se un client si disconnette mentre scriviamo
 	signal(SIGPIPE, SIG_IGN);
 
 	// creazione kanban con qualche card
 	Board* kanban = create_board(BOARD_PORT);
-	for (int i = 0; i < 5; i++) {
-		char desc[MAX_CARD_DESC_CHARS];
-		sprintf(desc, "Card%d", i);
-		add_card(kanban, TODO, desc);
-	}
+	for (int i = 0; i < 10; i++)
+		add_card(kanban, TODO, init_cards[i]);
 	printf("Lavagna inizializzata\n");
 
 	// stampa iniziale
@@ -146,14 +154,20 @@ int main() {
 							
 						case UtB_CREATE_CARD:
 							server_create_card_handler(kanban, i, buffer);
+							board_to_string(kanban, printbuf, sizeof(printbuf));
+							printf("%s", printbuf);
 							break;
 						
 						case UtB_ACK_CARD:
 							server_ack_card_handler(kanban, i, buffer);
+							board_to_string(kanban, printbuf, sizeof(printbuf));
+							printf("%s", printbuf);
 							break;
 						
 						case UtB_CARD_DONE:
 							server_card_done_handler(kanban, i);
+							board_to_string(kanban, printbuf, sizeof(printbuf));
+							printf("%s", printbuf);
 							break;
 						
                         default:
