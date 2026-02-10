@@ -2,6 +2,7 @@
 
 // variabili di stato utili per l'asta
 static int am_i_busy = 0;
+static int cost_sent_to_everyone = 0;
 static int my_port_global = 0;
 static int auction_card_id = -1;
 static int bids_collected = 0;
@@ -15,7 +16,7 @@ void p2p_msg_handler(int p2p_listener_sock, int server_socket) {
     struct sockaddr_in peer_addr;
     socklen_t addr_len = sizeof(peer_addr);
 
-    // 1. Accetto la connessione del peer
+    // accetto la connessione del peer
     if ((peer_sock = accept(p2p_listener_sock, (struct sockaddr *)&peer_addr, &addr_len)) < 0) {
         perror("Errore accept socket P2P\n");
         return;
@@ -64,7 +65,7 @@ void p2p_msg_handler(int p2p_listener_sock, int server_socket) {
 }
 
 void check_auction_winner(int server_socket) {
-    if (bids_collected >= bids_expected) {
+    if (bids_collected >= bids_expected && cost_sent_to_everyone == 1) {
         printf("--------------------------------------------\n");
 
         if (current_winner_port == my_port_global) {
@@ -116,6 +117,7 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
     
     // set variabili per l'asta
     am_i_busy = 0;
+    cost_sent_to_everyone = 0;
     my_port_global = my_port;
     auction_card_id = msg->card_id;
     bids_collected = 0;
@@ -157,7 +159,8 @@ void response_available_card_handler(MsgHeader* head, char* payload, int server_
         printf("Inviato costo %d a porta %d\n", my_cost, msg->users_ports[i]);
         close(sock);
     }
+    cost_sent_to_everyone = 1;
 
-    // controllo di sicurezza nel caso in cui nessun peer mi invia costo e quindi check_win non verrebbe mai chiamata
+    // controllo se ho vinto
     check_auction_winner(server_socket);
 }
