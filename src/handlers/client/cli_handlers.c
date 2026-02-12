@@ -67,7 +67,7 @@ void command_create_card_handler(int server_socket, char* args) {
     payload.description[MAX_CARD_DESC_CHARS - 1] = '\0';
     
     if (send_msg(server_socket, UtB_CREATE_CARD, &payload, sizeof(payload)) < 0)
-    perror("Errore nell'invio di SEND USER LIST\n");
+    perror("Errore nell'invio di CREATE CARD\n");
     else
     printf("Richiesta creazione card inviata: \"%s\"\n", payload.description);
 }
@@ -83,14 +83,14 @@ void command_ack_card_handler(int server_socket, char* args) {
     payload.card_id = card_id;
     
     if (send_msg(server_socket, UtB_ACK_CARD, &payload, sizeof(payload)) < 0)
-    perror("Errore nell'invio di SEND USER LIST\n");
+    perror("Errore nell'invio di ACK CARD\n");
     else
     printf("Inviato ACK per card %d\n", card_id);
 }
 
 void command_card_done_handler(int server_socket) {
     if (send_msg(server_socket, UtB_CARD_DONE, NULL, 0) < 0)
-    perror("Errore nell'invio di SEND USER LIST\n");
+    perror("Errore nell'invio di CARD DONE\n");
     else
     printf("Inviato completamento lavoro (CARD_DONE).\n");
 }

@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 	// struct per timeout
 	struct timeval tv;
 
-	printf("\nComandi disponibli:\n- QUIT, notifica server e termina esecuzione\n- SHOW_LAVAGNA, mostra stato attuale della lavagna\n- SEND_USER_LIST, ricevi lista utenti attualmente registrati\n- CREATE_CARD <descrizione> (max 30 caratteri), crea nuova card da porre in TODO\n\n");
+	printf("\nComandi disponibli:\n- QUIT, notifica server e termina esecuzione\n- SHOW_LAVAGNA, mostra stato attuale della lavagna\n- SEND_USER_LIST, ricevi lista utenti attualmente registrati\n- CREATE_CARD <descrizione> (max 30 caratteri), crea nuova card da porre in TODO\n- ACK CARD <id card>, per testare assegnamento card (normalmente fatto tramite asta)\n- CARD DONE, per segnalare termine lavoro (anche questo solo per testare)\n\n");
 
 	// gestione richieste con ciclo infinito
     for (;;) {

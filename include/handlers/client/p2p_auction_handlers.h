@@ -1,3 +1,9 @@
+/**
+ * @file p2p_auction_handlers.h
+ * @author Giorgio Baldacci
+ * @brief Funzioni handler chiamate dall'utente per gestire socket peer
+ * 
+ */
 #ifndef P2P_AUCTION_HANDLERS_H
 #define P2P_AUCTION_HANDLERS_H
 

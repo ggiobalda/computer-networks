@@ -1,3 +1,9 @@
+/**
+ * @file server_handlers.h
+ * @author Giorgio Baldacci
+ * @brief Funzioni handler chiamate dalla lavagna 
+ * 
+ */
 #ifndef SERVER_HANDLERS_H
 #define SERVER_HANDLERS_H
 

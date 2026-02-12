@@ -1,7 +1,7 @@
 /**
  * @file utils.h
  * @author Giorgio Baldacci (g.baldacci9@studenti.unipi.it)
- * @brief Costanti utili per il progetto
+ * @brief Costanti, strutture e funzioni utili per la comunicazione
  * 
  */
 #ifndef UTILS_H

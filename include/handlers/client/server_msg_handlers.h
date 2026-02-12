@@ -1,3 +1,9 @@
+/**
+ * @file server_msg_handlers.h
+ * @author Giorgio Baldacci
+ * @brief Funzioni handler chiamate dall'utente per gestire socket lavagna
+ * 
+ */
 #ifndef SERVER_MSG_HANDLERS_H
 #define SERVER_MSG_HANDLERS_H
 

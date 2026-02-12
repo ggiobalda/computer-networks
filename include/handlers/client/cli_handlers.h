@@ -1,3 +1,9 @@
+/**
+ * @file cli_handlers.h
+ * @author Giorgio Baldacci
+ * @brief Funzioni handler chiamate dall'utente per gestire input terminale
+ * 
+ */
 #ifndef CLI_HANDLERS_H
 #define CLI_HANDLERS_H
 
